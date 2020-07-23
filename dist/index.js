@@ -2759,7 +2759,7 @@ function run() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 7, , 8]);
+                    _a.trys.push([0, 8, , 9]);
                     option = option_1.getOption();
                     config = config_1.getConfigFromFile(option.configPath);
                     client = github.getOctokit(option.githubToken);
@@ -2786,19 +2786,21 @@ function run() {
                     commitAndPullRequests = _a.sent();
                     changes = calculate_1.calculateChanges(commitAndPullRequests);
                     nextVersion = version_1.calculateNextVersion(option, config, latestRelease, changes);
+                    if (!(option.dryRun == false)) return [3 /*break*/, 6];
                     return [4 /*yield*/, git_1.pushVersionBranch(option, config, nextVersion)];
                 case 5:
                     _a.sent();
-                    return [4 /*yield*/, release_1.createRelease(client, option, config, nextVersion, changes)];
-                case 6:
+                    _a.label = 6;
+                case 6: return [4 /*yield*/, release_1.createRelease(client, option, config, nextVersion, changes)];
+                case 7:
                     createdReleaseJson = _a.sent();
                     core.setOutput("release", createdReleaseJson);
-                    return [3 /*break*/, 8];
-                case 7:
+                    return [3 /*break*/, 9];
+                case 8:
                     error_1 = _a.sent();
                     core.setFailed(error_1.message);
-                    return [3 /*break*/, 8];
-                case 8: return [2 /*return*/];
+                    return [3 /*break*/, 9];
+                case 9: return [2 /*return*/];
             }
         });
     });
@@ -4295,67 +4297,68 @@ function checkoutBranch(branch, create) {
 }
 exports.checkoutBranch = checkoutBranch;
 function pushVersionBranch(option, config, version) {
+    var _a, _b, _c, _d;
     return __awaiter(this, void 0, void 0, function () {
         var remote, major, branch, has, major, minor, branch, has;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        return __generator(this, function (_e) {
+            switch (_e.label) {
                 case 0:
                     if (config.branch.createMajorVersionBranch == false && config.branch.createMinorVersionBranch == false) {
                         return [2 /*return*/];
                     }
                     return [4 /*yield*/, exec.exec("git config --local user.name " + option.commitUser)];
                 case 1:
-                    _a.sent();
+                    _e.sent();
                     return [4 /*yield*/, exec.exec("git config --local user.email " + option.commitEmail)];
                 case 2:
-                    _a.sent();
+                    _e.sent();
                     remote = "https://x-access-token:" + option.githubToken + "@github.com/" + option.repository + ".git";
                     if (!config.branch.createMajorVersionBranch) return [3 /*break*/, 9];
                     major = semver.major(version);
-                    branch = "" + config.branch.versionBranchPrefix + major + config.branch.versionBranchPostfix;
+                    branch = "" + ((_a = config.branch.versionBranchPrefix) !== null && _a !== void 0 ? _a : "") + major + ((_b = config.branch.versionBranchPostfix) !== null && _b !== void 0 ? _b : "");
                     return [4 /*yield*/, hasBranch(branch)];
                 case 3:
-                    has = _a.sent();
+                    has = _e.sent();
                     return [4 /*yield*/, checkoutBranch(branch, has == false)];
                 case 4:
-                    _a.sent();
+                    _e.sent();
                     return [4 /*yield*/, exec.exec("git fetch -p")];
                 case 5:
-                    _a.sent();
+                    _e.sent();
                     return [4 /*yield*/, mergeBranch(config.branch.baseBranch)];
                 case 6:
-                    _a.sent();
+                    _e.sent();
                     return [4 /*yield*/, exec.exec("git push " + remote + " HEAD:" + branch)];
                 case 7:
-                    _a.sent();
+                    _e.sent();
                     return [4 /*yield*/, checkoutBranch(config.branch.baseBranch, false)];
                 case 8:
-                    _a.sent();
-                    _a.label = 9;
+                    _e.sent();
+                    _e.label = 9;
                 case 9:
                     if (!config.branch.createMinorVersionBranch) return [3 /*break*/, 16];
                     major = semver.major(version);
                     minor = semver.minor(version);
-                    branch = "" + config.branch.versionBranchPrefix + major + "." + minor + config.branch.versionBranchPostfix;
+                    branch = "" + ((_c = config.branch.versionBranchPrefix) !== null && _c !== void 0 ? _c : "") + major + "." + minor + ((_d = config.branch.versionBranchPostfix) !== null && _d !== void 0 ? _d : "");
                     return [4 /*yield*/, hasBranch(branch)];
                 case 10:
-                    has = _a.sent();
+                    has = _e.sent();
                     return [4 /*yield*/, checkoutBranch(branch, has == false)];
                 case 11:
-                    _a.sent();
+                    _e.sent();
                     return [4 /*yield*/, exec.exec("git fetch -p")];
                 case 12:
-                    _a.sent();
+                    _e.sent();
                     return [4 /*yield*/, mergeBranch(config.branch.baseBranch)];
                 case 13:
-                    _a.sent();
+                    _e.sent();
                     return [4 /*yield*/, exec.exec("git push " + remote + " HEAD:" + branch)];
                 case 14:
-                    _a.sent();
+                    _e.sent();
                     return [4 /*yield*/, checkoutBranch(config.branch.baseBranch, false)];
                 case 15:
-                    _a.sent();
-                    _a.label = 16;
+                    _e.sent();
+                    _e.label = 16;
                 case 16: return [2 /*return*/];
             }
         });
@@ -9440,6 +9443,7 @@ function getOption() {
         commitEmail: getInput("commit_email"),
         configPath: getInput("config_path"),
         bump: getVersionOrNull("bump"),
+        dryRun: getInputOrNull("dry_run") == "true",
     };
 }
 exports.getOption = getOption;
@@ -12014,10 +12018,29 @@ module.exports = diff
 /***/ }),
 
 /***/ 825:
-/***/ (function(__unusedmodule, exports) {
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -12055,7 +12078,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createRelease = exports.getLatestRelease = void 0;
+exports.createReleaseBody = exports.createRelease = exports.getLatestRelease = void 0;
+var core = __importStar(__webpack_require__(470));
 function getLatestRelease(client, option) {
     return __awaiter(this, void 0, void 0, function () {
         var owner, repository, response, tagName, commitSha;
@@ -12103,16 +12127,26 @@ function getTagCommitSha(client, owner, repository, tagName) {
     });
 }
 function createRelease(client, option, config, nextVersion, changes) {
+    var _a, _b, _c, _d;
     return __awaiter(this, void 0, void 0, function () {
         var owner, repository, title, body, tag, response;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        return __generator(this, function (_e) {
+            switch (_e.label) {
                 case 0:
                     owner = option.repository.split("/")[0];
                     repository = option.repository.split("/")[1];
-                    title = "" + config.release.titlePrefix + nextVersion + config.release.titlePostfix;
+                    title = "" + ((_a = config.release.titlePrefix) !== null && _a !== void 0 ? _a : "") + nextVersion + ((_b = config.release.titlePostfix) !== null && _b !== void 0 ? _b : "");
                     body = createReleaseBody(option, config, changes);
-                    tag = "" + config.release.tagPrefix + nextVersion + config.release.tagPostfix;
+                    tag = "" + ((_c = config.release.tagPrefix) !== null && _c !== void 0 ? _c : "") + nextVersion + ((_d = config.release.tagPostfix) !== null && _d !== void 0 ? _d : "");
+                    if (option.dryRun) {
+                        core.info("title:");
+                        core.info(title);
+                        core.info("tag:");
+                        core.info(tag);
+                        core.info("body:");
+                        core.info(body);
+                        return [2 /*return*/, ""];
+                    }
                     return [4 /*yield*/, client.repos.createRelease({
                             owner: owner,
                             repo: repository,
@@ -12124,7 +12158,7 @@ function createRelease(client, option, config, nextVersion, changes) {
                             prerelease: false,
                         })];
                 case 1:
-                    response = _a.sent();
+                    response = _e.sent();
                     if (400 <= response.status) {
                         throw new Error("cannot create release");
                     }
@@ -12135,15 +12169,16 @@ function createRelease(client, option, config, nextVersion, changes) {
 }
 exports.createRelease = createRelease;
 function createReleaseBody(option, config, changes) {
+    var _a, _b;
     var categories = [];
-    for (var _i = 0, _a = config.categories; _i < _a.length; _i++) {
-        var category = _a[_i];
+    for (var _i = 0, _c = config.categories; _i < _c.length; _i++) {
+        var category = _c[_i];
         categories.push([category, []]);
     }
-    for (var _b = 0, changes_1 = changes; _b < changes_1.length; _b++) {
-        var change = changes_1[_b];
-        for (var _c = 0, categories_1 = categories; _c < categories_1.length; _c++) {
-            var category = categories_1[_c];
+    for (var _d = 0, changes_1 = changes; _d < changes_1.length; _d++) {
+        var change = changes_1[_d];
+        for (var _e = 0, categories_1 = categories; _e < categories_1.length; _e++) {
+            var category = categories_1[_e];
             var found = false;
             if (change.type == "pull_request") {
                 var pullRequest = change.value;
@@ -12151,8 +12186,8 @@ function createReleaseBody(option, config, changes) {
                     pullRequest.labels.map(function (x) { return x.name; }).includes(category[0].skipLabel)) {
                     continue;
                 }
-                for (var _d = 0, _e = pullRequest.labels.map(function (x) { return x.name; }); _d < _e.length; _d++) {
-                    var label = _e[_d];
+                for (var _f = 0, _g = pullRequest.labels.map(function (x) { return x.name; }); _f < _g.length; _f++) {
+                    var label = _g[_f];
                     if (category[0].labels.includes(label)) {
                         category[1].push(change);
                         found = true;
@@ -12162,8 +12197,8 @@ function createReleaseBody(option, config, changes) {
             }
             else if (change.type == "commit") {
                 var commit = change.value;
-                for (var _f = 0, _g = category[0].commits; _f < _g.length; _f++) {
-                    var prefix = _g[_f];
+                for (var _h = 0, _j = category[0].commits; _h < _j.length; _h++) {
+                    var prefix = _j[_h];
                     if (commit.message.startsWith(prefix)) {
                         category[1].push(change);
                         found = true;
@@ -12180,16 +12215,20 @@ function createReleaseBody(option, config, changes) {
         return config.release.bodyWhenEmptyChanges;
     }
     var result = "## " + config.release.bodyTitle + "\n";
-    for (var _h = 0, categories_2 = categories; _h < categories_2.length; _h++) {
-        var category = categories_2[_h];
+    for (var _k = 0, categories_2 = categories; _k < categories_2.length; _k++) {
+        var category = categories_2[_k];
+        if (category[1].length == 0) {
+            continue;
+        }
         result += "### " + category[0].title + "\n";
-        for (var _j = 0, _k = category[1]; _j < _k.length; _j++) {
-            var change = _k[_j];
-            result += "- " + category[0].changesPrefix + createChange(option, change) + category[0].changesPostfix + "\n";
+        for (var _l = 0, _m = category[1]; _l < _m.length; _l++) {
+            var change = _m[_l];
+            result += "- " + ((_a = category[0].changesPrefix) !== null && _a !== void 0 ? _a : "") + createChange(option, change) + ((_b = category[0].changesPostfix) !== null && _b !== void 0 ? _b : "") + "\n";
         }
     }
     return result;
 }
+exports.createReleaseBody = createReleaseBody;
 function createChange(option, change) {
     if (change.type == "pull_request") {
         var pullRequest = change.value;
