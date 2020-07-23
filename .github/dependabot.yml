@@ -9,17 +9,3 @@ updates:
     labels:
       - 'Dependencies'
     open-pull-requests-limit: 20
-    allow:
-      - dependency-type: 'production'
-  - package-ecosystem: 'npm'
-    directory: '/'
-    schedule:
-      interval: 'daily'
-    reviewers:
-      - 'MeilCli'
-    labels:
-      - 'Dependencies'
-      - 'Development'
-    open-pull-requests-limit: 20
-    allow:
-      - dependency-type: 'development'
