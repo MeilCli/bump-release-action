@@ -4268,7 +4268,7 @@ function echoCurrentBranch() {
                     return [4 /*yield*/, exec.exec("git symbolic-ref --short HEAD", undefined, execOption)];
                 case 1:
                     _a.sent();
-                    return [2 /*return*/, stdout];
+                    return [2 /*return*/, stdout.trim()];
             }
         });
     });
