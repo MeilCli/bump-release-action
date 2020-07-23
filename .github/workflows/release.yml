@@ -27,3 +27,4 @@ jobs:
         with:
           config_path: '.github/bump.yml'
           bump: ${{ github.event.inputs.bump }}
+          dry_run: ${{ github.event.inputs.dry_run }}
