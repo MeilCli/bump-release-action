@@ -14,7 +14,7 @@ export async function echoCurrentBranch(): Promise<string> {
 
     await exec.exec("git symbolic-ref --short HEAD", undefined, execOption);
 
-    return stdout;
+    return stdout.trim();
 }
 
 export async function checkoutBranch(branch: string, create: boolean) {
