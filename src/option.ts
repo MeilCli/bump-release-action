@@ -8,6 +8,7 @@ export interface Option {
     repository: string;
     configPath: string;
     bump: Version | null;
+    dryRun: boolean;
 }
 
 export function getOption(): Option {
@@ -18,6 +19,7 @@ export function getOption(): Option {
         commitEmail: getInput("commit_email"),
         configPath: getInput("config_path"),
         bump: getVersionOrNull("bump"),
+        dryRun: getInputOrNull("dry_run") == "true",
     };
 }
 

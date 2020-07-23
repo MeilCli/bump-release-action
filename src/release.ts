@@ -1,3 +1,4 @@
+import * as core from "@actions/core";
 import { GitHub } from "@actions/github/lib/utils";
 import { Option } from "./option";
 import { Config, ConfigCategory } from "./config";
@@ -53,6 +54,15 @@ export async function createRelease(
     const title = `${config.release.titlePrefix ?? ""}${nextVersion}${config.release.titlePostfix ?? ""}`;
     const body = createReleaseBody(option, config, changes);
     const tag = `${config.release.tagPrefix ?? ""}${nextVersion}${config.release.tagPostfix ?? ""}`;
+    if (option.dryRun) {
+        core.info("title:");
+        core.info(title);
+        core.info("tag:");
+        core.info(tag);
+        core.info("body:");
+        core.info(body);
+        return "";
+    }
     const response = await client.repos.createRelease({
         owner: owner,
         repo: repository,

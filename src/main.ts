@@ -32,7 +32,9 @@ async function run() {
         const changes = calculateChanges(commitAndPullRequests);
         const nextVersion = calculateNextVersion(option, config, latestRelease, changes);
 
-        await pushVersionBranch(option, config, nextVersion);
+        if (option.dryRun == false) {
+            await pushVersionBranch(option, config, nextVersion);
+        }
         const createdReleaseJson = await createRelease(client, option, config, nextVersion, changes);
         core.setOutput("release", createdReleaseJson);
     } catch (error) {

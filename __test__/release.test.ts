@@ -13,6 +13,7 @@ function createOption(): Option {
         commitEmail: "",
         configPath: "",
         bump: null,
+        dryRun: false,
     };
 }
 

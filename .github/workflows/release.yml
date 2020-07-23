@@ -6,6 +6,9 @@ on:
       bump:
         description: 'bump type, major or minor or patch or empty string'
         default: ''
+      dry_run:
+        description: 'dry run, true or false'
+        default: 'false'
 
 jobs:
   release:

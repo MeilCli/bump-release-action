@@ -26,6 +26,8 @@ inputs:
     required: true
   bump:
     description: 'how to bump version, value: major or minor or patch or empty string'
+  dry_run:
+    description: 'if true, not create and push this changes, and output release informations'
 outputs:
   release:
     description: 'the response json of created release'
