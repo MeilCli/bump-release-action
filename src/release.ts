@@ -120,7 +120,7 @@ export function createReleaseBody(option: Option, config: Config, changes: Chang
         }
     }
 
-    if (categories.length == 0) {
+    if (categories.length == 0 || categories.map((x) => x[1].length).reduce((sum, current) => sum + current, 0) == 0) {
         return config.release.bodyWhenEmptyChanges;
     }
 
