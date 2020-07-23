@@ -12211,7 +12211,7 @@ function createReleaseBody(option, config, changes) {
             }
         }
     }
-    if (categories.length == 0) {
+    if (categories.length == 0 || categories.map(function (x) { return x[1].length; }).reduce(function (sum, current) { return sum + current; }, 0) == 0) {
         return config.release.bodyWhenEmptyChanges;
     }
     var result = "## " + config.release.bodyTitle + "\n";
