@@ -14,6 +14,7 @@ function createOption(defaultBump: Version | null): Option {
         commitEmail: "",
         configPath: "",
         bump: defaultBump,
+        dryRun: false,
     };
 }
 
