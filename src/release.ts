@@ -70,7 +70,7 @@ export async function createRelease(
     return JSON.stringify(response.data);
 }
 
-function createReleaseBody(option: Option, config: Config, changes: Changes[]): string {
+export function createReleaseBody(option: Option, config: Config, changes: Changes[]): string {
     const categories: [ConfigCategory, Changes[]][] = [];
     for (const category of config.categories) {
         categories.push([category, []]);
@@ -116,6 +116,9 @@ function createReleaseBody(option: Option, config: Config, changes: Changes[]): 
 
     let result = `## ${config.release.bodyTitle}\n`;
     for (const category of categories) {
+        if (category[1].length == 0) {
+            continue;
+        }
         result += `### ${category[0].title}\n`;
         for (const change of category[1]) {
             result += `- ${category[0].changesPrefix ?? ""}${createChange(option, change)}${
