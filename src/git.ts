@@ -35,7 +35,7 @@ export async function pushVersionBranch(option: Option, config: Config, version:
     const remote = `https://x-access-token:${option.githubToken}@github.com/${option.repository}.git`;
     if (config.branch.createMajorVersionBranch) {
         const major = semver.major(version);
-        const branch = `${config.branch.versionBranchPrefix}${major}${config.branch.versionBranchPostfix}`;
+        const branch = `${config.branch.versionBranchPrefix ?? ""}${major}${config.branch.versionBranchPostfix ?? ""}`;
         const has = await hasBranch(branch);
         await checkoutBranch(branch, has == false);
         await exec.exec("git fetch -p");
@@ -46,7 +46,9 @@ export async function pushVersionBranch(option: Option, config: Config, version:
     if (config.branch.createMinorVersionBranch) {
         const major = semver.major(version);
         const minor = semver.minor(version);
-        const branch = `${config.branch.versionBranchPrefix}${major}.${minor}${config.branch.versionBranchPostfix}`;
+        const branch = `${config.branch.versionBranchPrefix ?? ""}${major}.${minor}${
+            config.branch.versionBranchPostfix ?? ""
+        }`;
         const has = await hasBranch(branch);
         await checkoutBranch(branch, has == false);
         await exec.exec("git fetch -p");

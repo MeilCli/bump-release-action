@@ -50,9 +50,9 @@ export async function createRelease(
 ): Promise<string> {
     const owner = option.repository.split("/")[0];
     const repository = option.repository.split("/")[1];
-    const title = `${config.release.titlePrefix}${nextVersion}${config.release.titlePostfix}`;
+    const title = `${config.release.titlePrefix ?? ""}${nextVersion}${config.release.titlePostfix ?? ""}`;
     const body = createReleaseBody(option, config, changes);
-    const tag = `${config.release.tagPrefix}${nextVersion}${config.release.tagPostfix}`;
+    const tag = `${config.release.tagPrefix ?? ""}${nextVersion}${config.release.tagPostfix ?? ""}`;
     const response = await client.repos.createRelease({
         owner: owner,
         repo: repository,
@@ -118,7 +118,9 @@ function createReleaseBody(option: Option, config: Config, changes: Changes[]): 
     for (const category of categories) {
         result += `### ${category[0].title}\n`;
         for (const change of category[1]) {
-            result += `- ${category[0].changesPrefix}${createChange(option, change)}${category[0].changesPostfix}\n`;
+            result += `- ${category[0].changesPrefix ?? ""}${createChange(option, change)}${
+                category[0].changesPostfix ?? ""
+            }\n`;
         }
     }
     return result;
