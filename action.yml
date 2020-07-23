@@ -1,5 +1,5 @@
 name: 'Bump version and publish release action'
-description: 'This action is bump version from latest release, publish release with changes note and push to version branch. Made it for the development of the action, but it can also be used for other purposes'
+description: 'This action is bump version from latest release, publish release with changes note and push to version branch'
 author: 'MeilCli'
 branding:
   icon: package
