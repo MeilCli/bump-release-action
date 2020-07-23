@@ -1,0 +1,34 @@
+name: 'Bump version and publish release action'
+description: 'This action is bump version from latest release, publish release with changes note and push to version branch. Made it for the development of the action, but it can also be used for other purposes'
+author: 'MeilCli'
+branding:
+  icon: package
+  color: gray-dark
+inputs:
+  repository:
+    description: 'running repository, format: owner/repository'
+    required: true
+    default: ${{ github.repository }}
+  github_token:
+    description: 'github token, using to read and write repository'
+    required: true
+    default: ${{ github.token }}
+  commit_user:
+    description: 'the merge commit user'
+    required: true
+    default: 'github-action'
+  commit_email:
+    description: 'the merge commit user`s email'
+    required: true
+    default: '41898282+github-actions[bot]@users.noreply.github.com'
+  config_path:
+    description: 'config file path'
+    required: true
+  bump:
+    description: 'how to bump version, value: major or minor or patch or empty string'
+outputs:
+  release:
+    description: 'the response json of created release'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
