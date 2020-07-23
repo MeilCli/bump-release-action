@@ -1,0 +1,45 @@
+release:
+  title-prefix: 'v'
+  initial-version: '0.0.1'
+  tag-prefix: 'v'
+branch:
+  version-branch-prefix: 'v'
+categories:
+  - title: 'Breaking Changes!'
+    labels:
+      - 'BreakingChange'
+    commits:
+      - 'breaking:'
+    changes-prefix: ':warning: '
+  - title: 'Feature Changes'
+    labels:
+      - 'Feature'
+    commits:
+      - 'feature:'
+    changes-prefix: ':gift: '
+  - title: 'Bug Fixes'
+    labels:
+      - 'Bug'
+    commits:
+      - 'fix:'
+    changes-prefix: ':ambulance: '
+  - title: 'Document Updates'
+    labels:
+      - 'Documentation'
+    commits:
+      - 'document:'
+    changes-prefix: ':blue_book: '
+  - title: 'Dependency Updates'
+    labels:
+      - 'Dependencies'
+    skip-label: 'Development'
+    commits:
+      - 'dependency:'
+    changes-prefix: ':green_book: '
+bump:
+  default: 'patch'
+  major:
+    labels:
+      - 'BreakingChange'
+    commits:
+      - 'breaking:'
