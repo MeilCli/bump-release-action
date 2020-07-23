@@ -5,7 +5,7 @@ This action is bump version from latest release, publish release with changes no
 
 ## Example
 ```yaml
-name: CI
+name: Release
 
 on:
   workflow_dispatch:
@@ -13,9 +13,12 @@ on:
       bump:
         description: 'bump type, major or minor or patch or empty string'
         default: ''
+      dry_run:
+        description: 'dry run, true or false'
+        default: 'false'
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -31,6 +34,7 @@ jobs:
         with:
           config_path: '.github/bump.yml'
           bump: ${{ github.event.inputs.bump }}
+          dry_run: ${{ github.event.inputs.dry_run }}
 ```
 
 ## License
