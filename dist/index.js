@@ -9222,6 +9222,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.listCommits = void 0;
 var exec = __importStar(__webpack_require__(986));
+var os = __importStar(__webpack_require__(87));
 function listCommits(config) {
     return __awaiter(this, void 0, void 0, function () {
         var option, lines, commitCreator;
@@ -9232,7 +9233,11 @@ function listCommits(config) {
                     lines = [];
                     option.listeners = {
                         stdout: function (data) {
-                            lines.push(data.toString());
+                            var output = data.toString();
+                            output
+                                .split(os.EOL)
+                                .filter(function (x) { return 0 < x.length; })
+                                .forEach(function (x) { return lines.push(x); });
                         },
                     };
                     return [4 /*yield*/, exec.exec("git --no-pager log " + config.branch.baseBranch + " --pretty=format:\"%H %s\"", undefined, option)];
