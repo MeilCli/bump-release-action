@@ -9,19 +9,19 @@ export interface Commit {
 
 export async function listCommits(config: Config): Promise<Commit[]> {
     const option: exec.ExecOptions = { ignoreReturnCode: true };
-    const lines: string[] = [];
+    let text = "";
     option.listeners = {
         stdout: (data: Buffer) => {
-            const output = data.toString();
-            output
-                .split(os.EOL)
-                .filter((x) => 0 < x.length)
-                .forEach((x) => lines.push(x));
+            text += data.toString();
         },
     };
 
     await exec.exec(`git --no-pager log ${config.branch.baseBranch} --pretty=format:"%H %s"`, undefined, option);
 
+    return parseCommits(text);
+}
+
+export function parseCommits(text: string) {
     const commitCreator: (line: string) => Commit = (line) => {
         const value = line.trim();
         const spaceIndex = value.indexOf(" ");
@@ -30,5 +30,9 @@ export async function listCommits(config: Config): Promise<Commit[]> {
         return { sha, message };
     };
 
-    return lines.filter((x) => 0 < x.length).map(commitCreator);
+    return text
+        .split(/[\r\n]/)
+        .map((x) => x.trim())
+        .filter((x) => 0 < x.length)
+        .map(commitCreator);
 }
