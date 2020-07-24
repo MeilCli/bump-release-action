@@ -31,6 +31,7 @@ export async function pushBaseBranch(option: Option, config: Config, version: st
     }
     await exec.exec(`git config --local user.name ${option.commitUser}`);
     await exec.exec(`git config --local user.email ${option.commitEmail}`);
+    await exec.exec("git config pull.ff only");
     await checkoutBranch(config.branch.baseBranch, false);
     await exec.exec(`git pull origin ${config.branch.baseBranch}`);
 
