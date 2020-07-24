@@ -27,7 +27,7 @@ export function calculateNextVersion(
     let major = semver.major(currentVersion);
     let minor = semver.minor(currentVersion);
     let patch = semver.patch(currentVersion);
-    let bump: Version = config.bump.default;
+    let bump: Version | null = null;
 
     for (const change of changes) {
         if (bump == "major") {
@@ -87,6 +87,9 @@ export function calculateNextVersion(
                 }
             }
         }
+    }
+    if (bump == null) {
+        bump = config.bump.default;
     }
     if (option.bump != null) {
         bump = option.bump;

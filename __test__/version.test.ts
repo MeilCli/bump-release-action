@@ -20,7 +20,11 @@ function createOption(defaultBump: Version | null): Option {
     };
 }
 
-function createConfig(tagPrefix: string | undefined, tagPostfix: string | undefined): Config {
+function createConfig(
+    tagPrefix: string | undefined,
+    tagPostfix: string | undefined,
+    defaultBump: Version = "patch"
+): Config {
     return {
         release: {
             titlePrefix: undefined,
@@ -45,7 +49,7 @@ function createConfig(tagPrefix: string | undefined, tagPostfix: string | undefi
         },
         categories: [],
         bump: {
-            default: "patch",
+            default: defaultBump,
             major: {
                 labels: ["major"],
                 commits: ["major:"],
@@ -228,6 +232,76 @@ test("calculateNextVersion", () => {
         calculateNextVersion(
             createOption(null),
             createConfig(undefined, undefined),
+            createRelease("v2.1.1"),
+            createChanges(["patch: fix", ["minor"], "major: fix"])
+        )
+    ).toBe("3.0.0");
+});
+
+test("calculateNextVersionOverrideDefaultBump", () => {
+    /**
+     * patch bump
+     */
+    expect(
+        calculateNextVersion(
+            createOption(null),
+            createConfig(undefined, undefined, "patch"),
+            createRelease("v2.1.1"),
+            createChanges([])
+        )
+    ).toBe("2.1.2");
+    expect(
+        calculateNextVersion(
+            createOption(null),
+            createConfig(undefined, undefined, "major"),
+            createRelease("v2.1.1"),
+            createChanges(["patch: fix"])
+        )
+    ).toBe("2.1.2");
+
+    /**
+     * minor bump
+     */
+    expect(
+        calculateNextVersion(
+            createOption(null),
+            createConfig(undefined, undefined, "minor"),
+            createRelease("v2.1.1"),
+            createChanges([])
+        )
+    ).toBe("2.2.0");
+    expect(
+        calculateNextVersion(
+            createOption(null),
+            createConfig(undefined, undefined, "major"),
+            createRelease("v2.1.1"),
+            createChanges(["patch: fix", ["minor"]])
+        )
+    ).toBe("2.2.0");
+    expect(
+        calculateNextVersion(
+            createOption(null),
+            createConfig(undefined, undefined, "patch"),
+            createRelease("v2.1.1"),
+            createChanges(["patch: fix", ["minor"]])
+        )
+    ).toBe("2.2.0");
+
+    /**
+     * major bump
+     */
+    expect(
+        calculateNextVersion(
+            createOption(null),
+            createConfig(undefined, undefined, "major"),
+            createRelease("v2.1.1"),
+            createChanges([])
+        )
+    ).toBe("3.0.0");
+    expect(
+        calculateNextVersion(
+            createOption(null),
+            createConfig(undefined, undefined, "patch"),
             createRelease("v2.1.1"),
             createChanges(["patch: fix", ["minor"], "major: fix"])
         )
