@@ -40,6 +40,16 @@ async function run() {
         }
         await pushVersionBranch(option, config, nextVersion);
         const createdReleaseJson = await createRelease(client, option, config, nextVersion, changes);
+
+        core.info("");
+        if (option.dryRun) {
+            core.info("--- Dry Run Result ---");
+        } else {
+            core.info("--- Result ---");
+        }
+        core.info(`current version: ${currentVersion}`);
+        core.info(`next version: ${nextVersion}`);
+
         core.setOutput("current_version", currentVersion);
         core.setOutput("next_version", nextVersion);
         core.setOutput("release", createdReleaseJson);

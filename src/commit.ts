@@ -1,5 +1,5 @@
 import * as exec from "@actions/exec";
-import * as os from "os";
+import * as core from "@actions/core";
 import { Config } from "./config";
 
 export interface Commit {
@@ -17,6 +17,9 @@ export async function listCommits(config: Config): Promise<Commit[]> {
     };
 
     await exec.exec(`git --no-pager log ${config.branch.baseBranch} --pretty=format:"%H %s"`, undefined, option);
+
+    // write line break
+    core.info("");
 
     return parseCommits(text);
 }

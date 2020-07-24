@@ -20,6 +20,10 @@ export function replaceVersions(option: Option, config: Config, version: string)
     }
 
     // write or output content
+    if (option.dryRun) {
+        core.info("");
+        core.info("--- Dry Run Change Version ---");
+    }
     for (const content of contents) {
         if (option.dryRun) {
             const diff = calculateDiff(content[1], content[2]);

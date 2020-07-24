@@ -55,10 +55,10 @@ export async function createRelease(
     const body = createReleaseBody(option, config, changes);
     const tag = `${config.release.tagPrefix ?? ""}${nextVersion}${config.release.tagPostfix ?? ""}`;
     if (option.dryRun) {
-        core.info("title:");
-        core.info(title);
-        core.info("tag:");
-        core.info(tag);
+        core.info("");
+        core.info("--- Dry Run Create Release ---");
+        core.info(`title: ${title}`);
+        core.info(`tag: ${tag}`);
         core.info("body:");
         core.info(body);
         return "";
