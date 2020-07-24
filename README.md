@@ -16,6 +16,11 @@ on:
       dry_run:
         description: 'dry run, true or false'
         default: 'false'
+      draft:
+        description: 'draft, true or false'
+        default: 'false'
+      pre_release: 'pre release, true or false'
+        default: 'false'
 
 jobs:
   release:
@@ -35,6 +40,8 @@ jobs:
           config_path: '.github/bump.yml'
           bump: ${{ github.event.inputs.bump }}
           dry_run: ${{ github.event.inputs.dry_run }}
+          draft: ${{ github.event.inputs.draft }}
+          pre_release: ${{ github.event.inputs.pre_release }}
 ```
 
 ## License
