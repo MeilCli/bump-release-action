@@ -81,6 +81,32 @@ export async function createRelease(
 }
 
 export function createReleaseBody(option: Option, config: Config, changes: Changes[]): string {
+    const categories = aggregateCategories(config, changes);
+
+    if (categories.length == 0 || categories.map((x) => x[1].length).reduce((sum, current) => sum + current, 0) == 0) {
+        return config.release.bodyWhenEmptyChanges;
+    }
+
+    const releaseNotes = aggregateReleaseNotes(option, categories);
+    let result = `## ${config.release.bodyTitle}\n`;
+    for (const releaseNote of releaseNotes) {
+        if (releaseNote[1].length == 0) {
+            continue;
+        }
+        result += `### ${releaseNote[0]}\n`;
+        for (const note of releaseNote[1]) {
+            result += `- ${note}\n`;
+        }
+    }
+
+    if (result.endsWith("\n")) {
+        result = result.slice(0, result.length - 1);
+    }
+
+    return result;
+}
+
+function aggregateCategories(config: Config, changes: Changes[]): [ConfigCategory, Changes[]][] {
     const categories: [ConfigCategory, Changes[]][] = [];
     for (const category of config.categories) {
         categories.push([category, []]);
@@ -120,26 +146,32 @@ export function createReleaseBody(option: Option, config: Config, changes: Chang
         }
     }
 
-    if (categories.length == 0 || categories.map((x) => x[1].length).reduce((sum, current) => sum + current, 0) == 0) {
-        return config.release.bodyWhenEmptyChanges;
-    }
-
-    let result = `## ${config.release.bodyTitle}\n`;
-    for (const category of categories) {
-        if (category[1].length == 0) {
-            continue;
-        }
-        result += `### ${category[0].title}\n`;
-        for (const change of category[1]) {
-            result += `- ${category[0].changesPrefix ?? ""}${createChange(option, change)}${
-                category[0].changesPostfix ?? ""
-            }\n`;
-        }
-    }
-    return result;
+    return categories;
 }
 
-function createChange(option: Option, change: Changes): string {
+function aggregateReleaseNotes(option: Option, categories: [ConfigCategory, Changes[]][]): [string, string[]][] {
+    const releaseNotes: [string, string[]][] = [];
+
+    for (const category of categories) {
+        let releaseNoteRoot: [string, string[]] = [category[0].title, []];
+        const findReleaseNoteRoot = releaseNotes.find((x) => x[0] == category[0].title);
+        if (findReleaseNoteRoot == undefined) {
+            releaseNotes.push(releaseNoteRoot);
+        } else {
+            releaseNoteRoot = findReleaseNoteRoot;
+        }
+        const changes = category[1];
+        for (const change of changes) {
+            const releaseNotePrefix = category[0].changesPrefix ?? "";
+            const releaseNotePostfix = category[0].changesPostfix ?? "";
+            releaseNoteRoot[1].push(`${releaseNotePrefix}${createReleaseNote(option, change)}${releaseNotePostfix}`);
+        }
+    }
+
+    return releaseNotes;
+}
+
+function createReleaseNote(option: Option, change: Changes): string {
     if (change.type == "pull_request") {
         const pullRequest = change.value as PullRequest;
         return `${pullRequest.title} ([#${pullRequest.number}](${pullRequest.htmlUrl})) @${pullRequest.user.login}`;

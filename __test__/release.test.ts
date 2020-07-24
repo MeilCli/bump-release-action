@@ -47,6 +47,14 @@ function createConfig(): Config {
                 changesPostfix: undefined,
             },
             {
+                title: "Feature",
+                labels: ["f"],
+                skipLabel: "skip",
+                commits: ["f:"],
+                changesPrefix: undefined,
+                changesPostfix: undefined,
+            },
+            {
                 title: "Bug Fix",
                 labels: ["bug"],
                 skipLabel: "skip",
@@ -112,16 +120,15 @@ function createCommitAndPullRequests(changes: [string, [number, string] | null][
     return result;
 }
 
-const expectBody = `## Title
+const expectBody1 = `## Title
 ### Feature
 - PR-pr-1 ([#0](https://github.com/MeilCli/bump-release-action)) @MeilCli
 - feature: menu (https://github.com/MeilCli/bump-release-action/commit/feature: menu)
 ### Bug Fix
 - bug: menu (https://github.com/MeilCli/bump-release-action/commit/bug: menu)
-- PR-pr-2 ([#0](https://github.com/MeilCli/bump-release-action)) @MeilCli
-`.replace("\r\n", "\n");
+- PR-pr-2 ([#0](https://github.com/MeilCli/bump-release-action)) @MeilCli`.replace("\r\n", "\n");
 
-test("testCreateReleaseBody", () => {
+test("testCreateReleaseBody1", () => {
     const option = createOption();
     const config = createConfig();
     const commitAndPullRequests = createCommitAndPullRequests([
@@ -133,5 +140,32 @@ test("testCreateReleaseBody", () => {
     const changes = calculateChanges(commitAndPullRequests);
     const body = createReleaseBody(option, config, changes);
 
-    expect(body).toBe(expectBody);
+    expect(body).toBe(expectBody1);
+});
+
+const expectBody2 = `## Title
+### Feature
+- PR-pr-1 ([#0](https://github.com/MeilCli/bump-release-action)) @MeilCli
+- feature: menu (https://github.com/MeilCli/bump-release-action/commit/feature: menu)
+- PR-pr-9 ([#0](https://github.com/MeilCli/bump-release-action)) @MeilCli
+- f: menu (https://github.com/MeilCli/bump-release-action/commit/f: menu)
+### Bug Fix
+- bug: menu (https://github.com/MeilCli/bump-release-action/commit/bug: menu)
+- PR-pr-2 ([#0](https://github.com/MeilCli/bump-release-action)) @MeilCli`.replace("\r\n", "\n");
+
+test("testCreateReleaseBody2", () => {
+    const option = createOption();
+    const config = createConfig();
+    const commitAndPullRequests = createCommitAndPullRequests([
+        ["bug: menu", null],
+        ["pr-1", [2, "feature"]],
+        ["pr-9", [2, "f"]],
+        ["pr-2", [3, "bug"]],
+        ["feature: menu", null],
+        ["f: menu", null],
+    ]);
+    const changes = calculateChanges(commitAndPullRequests);
+    const body = createReleaseBody(option, config, changes);
+
+    expect(body).toBe(expectBody2);
 });
