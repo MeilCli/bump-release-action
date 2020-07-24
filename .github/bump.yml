@@ -12,13 +12,13 @@ categories:
     commits:
       - 'breaking:'
     changes-prefix: ':warning: '
-  - title: 'Feature Changes'
+  - title: 'Changes'
     labels:
       - 'Feature'
     commits:
       - 'feature:'
     changes-prefix: ':gift: '
-  - title: 'Maintenance'
+  - title: 'Changes'
     labels:
       - Maintenance
     commits:
@@ -30,7 +30,7 @@ categories:
     commits:
       - 'fix:'
     changes-prefix: ':ambulance: '
-  - title: 'Document Updates'
+  - title: 'Changes'
     labels:
       - 'Documentation'
     commits:
