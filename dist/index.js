@@ -9765,6 +9765,8 @@ function getOption() {
         configPath: getInput("config_path"),
         bump: getVersionOrNull("bump"),
         dryRun: getInputOrNull("dry_run") == "true",
+        preRelease: getInputOrNull("pre_release") == "true",
+        draft: getInputOrNull("draft") == "true",
     };
 }
 exports.getOption = getOption;
@@ -12468,6 +12470,8 @@ function createRelease(client, option, config, nextVersion, changes) {
                     if (option.dryRun) {
                         core.info("");
                         core.info("--- Dry Run Create Release ---");
+                        core.info("draft: " + option.draft);
+                        core.info("preRelease: " + option.preRelease);
                         core.info("title: " + title);
                         core.info("tag: " + tag);
                         core.info("body:");
@@ -12481,8 +12485,8 @@ function createRelease(client, option, config, nextVersion, changes) {
                             body: body,
                             tag_name: tag,
                             target_commitish: config.branch.baseBranch,
-                            draft: false,
-                            prerelease: false,
+                            draft: option.draft,
+                            prerelease: option.preRelease,
                         })];
                 case 1:
                     response = _e.sent();
