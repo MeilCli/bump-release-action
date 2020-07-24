@@ -14,11 +14,11 @@ inputs:
     required: true
     default: ${{ github.token }}
   commit_user:
-    description: 'the merge commit user'
+    description: 'the commit user'
     required: true
     default: 'github-action'
   commit_email:
-    description: 'the merge commit user`s email'
+    description: 'the commit user`s email'
     required: true
     default: '41898282+github-actions[bot]@users.noreply.github.com'
   config_path:
