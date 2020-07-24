@@ -2800,6 +2800,15 @@ function run() {
                     return [4 /*yield*/, release_1.createRelease(client, option, config, nextVersion, changes)];
                 case 8:
                     createdReleaseJson = _a.sent();
+                    core.info("");
+                    if (option.dryRun) {
+                        core.info("--- Dry Run Result ---");
+                    }
+                    else {
+                        core.info("--- Result ---");
+                    }
+                    core.info("current version: " + currentVersion);
+                    core.info("next version: " + nextVersion);
                     core.setOutput("current_version", currentVersion);
                     core.setOutput("next_version", nextVersion);
                     core.setOutput("release", createdReleaseJson);
@@ -2927,6 +2936,10 @@ function replaceVersions(option, config, version) {
         content[2] = replaceVersion(content[1], content[0].line, content[0].start, version);
     }
     // write or output content
+    if (option.dryRun) {
+        core.info("");
+        core.info("--- Dry Run Change Version ---");
+    }
     for (var _c = 0, contents_2 = contents; _c < contents_2.length; _c++) {
         var content = contents_2[_c];
         if (option.dryRun) {
@@ -9475,6 +9488,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.parseCommits = exports.listCommits = void 0;
 var exec = __importStar(__webpack_require__(986));
+var core = __importStar(__webpack_require__(470));
 function listCommits(config) {
     return __awaiter(this, void 0, void 0, function () {
         var option, text;
@@ -9491,6 +9505,8 @@ function listCommits(config) {
                     return [4 /*yield*/, exec.exec("git --no-pager log " + config.branch.baseBranch + " --pretty=format:\"%H %s\"", undefined, option)];
                 case 1:
                     _a.sent();
+                    // write line break
+                    core.info("");
                     return [2 /*return*/, parseCommits(text)];
             }
         });
@@ -12404,10 +12420,10 @@ function createRelease(client, option, config, nextVersion, changes) {
                     body = createReleaseBody(option, config, changes);
                     tag = "" + ((_c = config.release.tagPrefix) !== null && _c !== void 0 ? _c : "") + nextVersion + ((_d = config.release.tagPostfix) !== null && _d !== void 0 ? _d : "");
                     if (option.dryRun) {
-                        core.info("title:");
-                        core.info(title);
-                        core.info("tag:");
-                        core.info(tag);
+                        core.info("");
+                        core.info("--- Dry Run Create Release ---");
+                        core.info("title: " + title);
+                        core.info("tag: " + tag);
                         core.info("body:");
                         core.info(body);
                         return [2 /*return*/, ""];
