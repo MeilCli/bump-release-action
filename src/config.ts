@@ -1,10 +1,13 @@
 import * as fs from "fs";
 import * as yaml from "js-yaml";
 import { Version, versionList } from "./version";
+import { ReleaseSortBy, ReleaseSortDirection, releaseSortByList, releaseSortDirectionList } from "./release";
 
 export const defaultBodyTitle = "What's Changed";
 export const defaultBodyWhenEmptyChanges = "This release has not changes";
 export const defaultInitialVersion = "1.0.0";
+export const defaultSortBy = "commit_at";
+export const defaultSortDirection = "descending";
 export const defaultBaseBranch = "master";
 export const defaultCreateMajorVersionBranch = true;
 export const defaultCreateMinorVersionBranch = false;
@@ -27,6 +30,8 @@ export interface ConfigRelease {
     initialVersion: string;
     tagPrefix: string | undefined;
     tagPostfix: string | undefined;
+    sortBy: ReleaseSortBy;
+    sortDirection: ReleaseSortDirection;
 }
 
 export interface ConfigBranch {
@@ -82,6 +87,8 @@ interface YamlRelease {
     "initial-version": string | undefined;
     "tag-prefix": string | undefined;
     "tag-postfix": string | undefined;
+    "sort-by": string | undefined;
+    "sort-direction": string | undefined;
 }
 
 interface YamlBranch {
@@ -128,6 +135,20 @@ export function getConfigFromFile(filePath: string): Config {
 
 export function getConfigFromYaml(text: string): Config {
     const root = yaml.load(text) as YamlRoot;
+    let sortBy: ReleaseSortBy = defaultSortBy;
+    for (const releaseSortBy of releaseSortByList) {
+        if (releaseSortBy == root?.release?.["sort-by"]) {
+            sortBy = releaseSortBy;
+            break;
+        }
+    }
+    let sortDirection: ReleaseSortDirection = defaultSortDirection;
+    for (const releaseSortDirection of releaseSortDirectionList) {
+        if (releaseSortDirection == root?.release?.["sort-direction"]) {
+            sortDirection = releaseSortDirection;
+            break;
+        }
+    }
     const release: ConfigRelease = {
         titlePrefix: root?.release?.["title-prefix"],
         titlePostfix: root?.release?.["title-postfix"],
@@ -136,6 +157,8 @@ export function getConfigFromYaml(text: string): Config {
         initialVersion: root?.release?.["initial-version"] ?? defaultInitialVersion,
         tagPrefix: root?.release?.["tag-prefix"],
         tagPostfix: root?.release?.["tag-postfix"],
+        sortBy: sortBy,
+        sortDirection: sortDirection,
     };
     const branch: ConfigBranch = {
         baseBranch: root?.branch?.["base-branch"] ?? defaultBaseBranch,

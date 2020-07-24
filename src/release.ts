@@ -6,6 +6,13 @@ import { Changes } from "./calculate";
 import { PullRequest } from "./pull_request";
 import { Commit } from "./commit";
 
+export const releaseSortByList = ["note", "commit_at"] as const;
+export const releaseSortDirectionList = ["ascending", "descending"] as const;
+
+export type ReleaseSortBy = typeof releaseSortByList[number];
+
+export type ReleaseSortDirection = typeof releaseSortDirectionList[number];
+
 export interface Release {
     tagName: string;
     commitSha: string;
@@ -87,7 +94,7 @@ export function createReleaseBody(option: Option, config: Config, changes: Chang
         return config.release.bodyWhenEmptyChanges;
     }
 
-    const releaseNotes = aggregateReleaseNotes(option, categories);
+    const releaseNotes = aggregateReleaseNotes(option, config, categories);
     let result = `## ${config.release.bodyTitle}\n`;
     for (const releaseNote of releaseNotes) {
         if (releaseNote[1].length == 0) {
@@ -149,11 +156,15 @@ function aggregateCategories(config: Config, changes: Changes[]): [ConfigCategor
     return categories;
 }
 
-function aggregateReleaseNotes(option: Option, categories: [ConfigCategory, Changes[]][]): [string, string[]][] {
-    const releaseNotes: [string, string[]][] = [];
+function aggregateReleaseNotes(
+    option: Option,
+    config: Config,
+    categories: [ConfigCategory, Changes[]][]
+): [string, string[]][] {
+    const releaseNotes: [string, [string, number][]][] = [];
 
     for (const category of categories) {
-        let releaseNoteRoot: [string, string[]] = [category[0].title, []];
+        let releaseNoteRoot: [string, [string, number][]] = [category[0].title, []];
         const findReleaseNoteRoot = releaseNotes.find((x) => x[0] == category[0].title);
         if (findReleaseNoteRoot == undefined) {
             releaseNotes.push(releaseNoteRoot);
@@ -164,11 +175,35 @@ function aggregateReleaseNotes(option: Option, categories: [ConfigCategory, Chan
         for (const change of changes) {
             const releaseNotePrefix = category[0].changesPrefix ?? "";
             const releaseNotePostfix = category[0].changesPostfix ?? "";
-            releaseNoteRoot[1].push(`${releaseNotePrefix}${createReleaseNote(option, change)}${releaseNotePostfix}`);
+            releaseNoteRoot[1].push([
+                `${releaseNotePrefix}${createReleaseNote(option, change)}${releaseNotePostfix}`,
+                change.unixTime,
+            ]);
         }
     }
 
-    return releaseNotes;
+    return releaseNotes.map((x) => {
+        const notes: [string, number][] = x[1];
+
+        if (config.release.sortBy == "commit_at") {
+            if (config.release.sortDirection == "descending") {
+                notes.sort((a, b) => (a[1] < b[1] ? 1 : -1));
+            }
+            if (config.release.sortDirection == "ascending") {
+                notes.sort((a, b) => (a[1] < b[1] ? -1 : 1));
+            }
+        }
+        if (config.release.sortBy == "note") {
+            if (config.release.sortDirection == "descending") {
+                notes.sort((a, b) => b[0].localeCompare(a[0]));
+            }
+            if (config.release.sortDirection == "ascending") {
+                notes.sort((a, b) => a[0].localeCompare(b[0]));
+            }
+        }
+
+        return [x[0], notes.map((y) => y[0])];
+    });
 }
 
 function createReleaseNote(option: Option, change: Changes): string {

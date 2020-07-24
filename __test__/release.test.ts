@@ -3,7 +3,7 @@ import { Config } from "../src/config";
 import { PullRequest } from "../src/pull_request";
 import { Commit } from "../src/commit";
 import { calculateChanges } from "../src/calculate";
-import { createReleaseBody } from "../src/release";
+import { createReleaseBody, ReleaseSortBy, ReleaseSortDirection } from "../src/release";
 
 function createOption(): Option {
     return {
@@ -17,7 +17,7 @@ function createOption(): Option {
     };
 }
 
-function createConfig(): Config {
+function createConfig(sortBy: ReleaseSortBy = "commit_at", sortDirection: ReleaseSortDirection = "descending"): Config {
     return {
         release: {
             titlePrefix: undefined,
@@ -27,6 +27,8 @@ function createConfig(): Config {
             initialVersion: "1.0.0",
             tagPrefix: undefined,
             tagPostfix: undefined,
+            sortBy: sortBy,
+            sortDirection: sortDirection,
         },
         branch: {
             baseBranch: "master",
@@ -93,13 +95,18 @@ function createConfig(): Config {
 function createCommitAndPullRequests(changes: [string, [number, string] | null][]): [Commit, PullRequest | null][] {
     const result: [Commit, PullRequest | null][] = [];
 
+    let commitAt = 100000000;
     for (const change of changes) {
-        const commit: Commit = { sha: change[0], message: change[0] };
+        const commit: Commit = { sha: change[0], unixTime: commitAt--, message: change[0] };
         let pullRequest: PullRequest | null = null;
         const additionalCommits: Commit[] = [];
         if (change[1] != null) {
             for (let i = 1; i <= change[1][0]; i++) {
-                additionalCommits.push({ sha: `${change[0]}-${i}`, message: `${change[0]}-${i}` });
+                additionalCommits.push({
+                    sha: `${change[0]}-${i}`,
+                    unixTime: commitAt--,
+                    message: `${change[0]}-${i}`,
+                });
             }
             pullRequest = {
                 title: `PR-${change[0]}`,
@@ -146,8 +153,8 @@ test("testCreateReleaseBody1", () => {
 const expectBody2 = `## Title
 ### Feature
 - PR-pr-1 ([#0](https://github.com/MeilCli/bump-release-action)) @MeilCli
-- feature: menu (https://github.com/MeilCli/bump-release-action/commit/feature: menu)
 - PR-pr-9 ([#0](https://github.com/MeilCli/bump-release-action)) @MeilCli
+- feature: menu (https://github.com/MeilCli/bump-release-action/commit/feature: menu)
 - f: menu (https://github.com/MeilCli/bump-release-action/commit/f: menu)
 ### Bug Fix
 - bug: menu (https://github.com/MeilCli/bump-release-action/commit/bug: menu)
@@ -168,4 +175,85 @@ test("testCreateReleaseBody2", () => {
     const body = createReleaseBody(option, config, changes);
 
     expect(body).toBe(expectBody2);
+});
+
+const expectSortByAscendingBody = `## Title
+### Feature
+- f: menu (https://github.com/MeilCli/bump-release-action/commit/f: menu)
+- feature: menu (https://github.com/MeilCli/bump-release-action/commit/feature: menu)
+- PR-pr-9 ([#0](https://github.com/MeilCli/bump-release-action)) @MeilCli
+- PR-pr-1 ([#0](https://github.com/MeilCli/bump-release-action)) @MeilCli
+### Bug Fix
+- PR-pr-2 ([#0](https://github.com/MeilCli/bump-release-action)) @MeilCli
+- bug: menu (https://github.com/MeilCli/bump-release-action/commit/bug: menu)`.replace("\r\n", "\n");
+
+test("testCreateReleaseBodySortByAscending", () => {
+    const option = createOption();
+    const config = createConfig("commit_at", "ascending");
+    const commitAndPullRequests = createCommitAndPullRequests([
+        ["bug: menu", null],
+        ["pr-1", [2, "feature"]],
+        ["pr-9", [2, "f"]],
+        ["pr-2", [3, "bug"]],
+        ["feature: menu", null],
+        ["f: menu", null],
+    ]);
+    const changes = calculateChanges(commitAndPullRequests);
+    const body = createReleaseBody(option, config, changes);
+
+    expect(body).toBe(expectSortByAscendingBody);
+});
+
+const expectSortByNoteAndDescendingBody = `## Title
+### Feature
+- PR-pr-9 ([#0](https://github.com/MeilCli/bump-release-action)) @MeilCli
+- PR-pr-1 ([#0](https://github.com/MeilCli/bump-release-action)) @MeilCli
+- feature: menu (https://github.com/MeilCli/bump-release-action/commit/feature: menu)
+- f: menu (https://github.com/MeilCli/bump-release-action/commit/f: menu)
+### Bug Fix
+- PR-pr-2 ([#0](https://github.com/MeilCli/bump-release-action)) @MeilCli
+- bug: menu (https://github.com/MeilCli/bump-release-action/commit/bug: menu)`.replace("\r\n", "\n");
+
+test("testCreateReleaseBodySortByNoteAndDescending", () => {
+    const option = createOption();
+    const config = createConfig("note", "descending");
+    const commitAndPullRequests = createCommitAndPullRequests([
+        ["bug: menu", null],
+        ["pr-1", [2, "feature"]],
+        ["pr-9", [2, "f"]],
+        ["pr-2", [3, "bug"]],
+        ["feature: menu", null],
+        ["f: menu", null],
+    ]);
+    const changes = calculateChanges(commitAndPullRequests);
+    const body = createReleaseBody(option, config, changes);
+
+    expect(body).toBe(expectSortByNoteAndDescendingBody);
+});
+
+const expectSortByNoteAndAscendingBody = `## Title
+### Feature
+- f: menu (https://github.com/MeilCli/bump-release-action/commit/f: menu)
+- feature: menu (https://github.com/MeilCli/bump-release-action/commit/feature: menu)
+- PR-pr-1 ([#0](https://github.com/MeilCli/bump-release-action)) @MeilCli
+- PR-pr-9 ([#0](https://github.com/MeilCli/bump-release-action)) @MeilCli
+### Bug Fix
+- bug: menu (https://github.com/MeilCli/bump-release-action/commit/bug: menu)
+- PR-pr-2 ([#0](https://github.com/MeilCli/bump-release-action)) @MeilCli`.replace("\r\n", "\n");
+
+test("testCreateReleaseBodySortByNoteAndAscending", () => {
+    const option = createOption();
+    const config = createConfig("note", "ascending");
+    const commitAndPullRequests = createCommitAndPullRequests([
+        ["bug: menu", null],
+        ["pr-1", [2, "feature"]],
+        ["pr-9", [2, "f"]],
+        ["pr-2", [3, "bug"]],
+        ["feature: menu", null],
+        ["f: menu", null],
+    ]);
+    const changes = calculateChanges(commitAndPullRequests);
+    const body = createReleaseBody(option, config, changes);
+
+    expect(body).toBe(expectSortByNoteAndAscendingBody);
 });

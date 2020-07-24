@@ -28,6 +28,8 @@ function createConfig(tagPrefix: string | undefined, tagPostfix: string | undefi
             initialVersion: "1.0.0",
             tagPrefix: tagPrefix,
             tagPostfix: tagPostfix,
+            sortBy: "commit_at",
+            sortDirection: "descending",
         },
         branch: {
             baseBranch: "master",
@@ -72,10 +74,12 @@ function createChanges(changes: Array<string | string[]>): Changes[] {
         if (typeof change == "string") {
             const commit: Commit = {
                 sha: "",
+                unixTime: 0,
                 message: change,
             };
             result.push({
                 type: "commit",
+                unixTime: 0,
                 value: commit,
             });
         } else {
@@ -93,6 +97,7 @@ function createChanges(changes: Array<string | string[]>): Changes[] {
             };
             result.push({
                 type: "pull_request",
+                unixTime: 0,
                 value: pullRequest,
             });
         }

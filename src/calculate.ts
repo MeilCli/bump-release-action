@@ -3,6 +3,7 @@ import { Commit } from "./commit";
 
 export interface Changes {
     type: "commit" | "pull_request";
+    unixTime: number;
     value: Commit | PullRequest;
 }
 
@@ -12,7 +13,11 @@ export function calculateChanges(commitAndPullRequests: [Commit, PullRequest | n
 
     for (const commitAndPullRequest of commitAndPullRequests) {
         if (commitAndPullRequest[1] != null) {
-            result.push({ type: "pull_request", value: commitAndPullRequest[1] });
+            result.push({
+                type: "pull_request",
+                unixTime: commitAndPullRequest[0].unixTime,
+                value: commitAndPullRequest[1],
+            });
             for (const commit of commitAndPullRequest[1].commits) {
                 skipCommitShas.push(commit.sha);
             }
@@ -21,7 +26,7 @@ export function calculateChanges(commitAndPullRequests: [Commit, PullRequest | n
         if (0 <= skipCommitShas.indexOf(commitAndPullRequest[0].sha)) {
             continue;
         }
-        result.push({ type: "commit", value: commitAndPullRequest[0] });
+        result.push({ type: "commit", unixTime: commitAndPullRequest[0].unixTime, value: commitAndPullRequest[0] });
     }
 
     return result;

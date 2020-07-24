@@ -9,6 +9,8 @@ release:
   initial-version: '0.0.1'
   tag-prefix: 'v'
   tag-postfix: '-stable'
+  sort-by: 'note'
+  sort-direction: 'ascending'
 branch:
   base-branch: 'develop'
   version-branch-prefix: 'v'
@@ -62,6 +64,8 @@ test("testFull", () => {
     expect(config.release.initialVersion).toBe("0.0.1");
     expect(config.release.tagPrefix).toBe("v");
     expect(config.release.tagPostfix).toBe("-stable");
+    expect(config.release.sortBy).toBe("note");
+    expect(config.release.sortDirection).toBe("ascending");
 
     expect(config.branch.baseBranch).toBe("develop");
     expect(config.branch.versionBranchPrefix).toBe("v");
@@ -105,6 +109,8 @@ test("testEmpty", () => {
     expect(config.release.initialVersion).toBe(Config.defaultInitialVersion);
     expect(config.release.tagPrefix).toBeUndefined();
     expect(config.release.tagPostfix).toBeUndefined();
+    expect(config.release.sortBy).toBe("commit_at");
+    expect(config.release.sortDirection).toBe("descending");
 
     expect(config.branch.baseBranch).toBe(Config.defaultBaseBranch);
     expect(config.branch.versionBranchPrefix).toBeUndefined();
@@ -143,6 +149,8 @@ test("testEmptyCategory", () => {
     expect(config.release.initialVersion).toBe(Config.defaultInitialVersion);
     expect(config.release.tagPrefix).toBeUndefined();
     expect(config.release.tagPostfix).toBeUndefined();
+    expect(config.release.sortBy).toBe("commit_at");
+    expect(config.release.sortDirection).toBe("descending");
 
     expect(config.branch.baseBranch).toBe(Config.defaultBaseBranch);
     expect(config.branch.versionBranchPrefix).toBeUndefined();
