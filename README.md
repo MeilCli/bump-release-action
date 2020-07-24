@@ -11,6 +11,20 @@ Features:
 - Push commits to version branch
 - Change the version written in the file
 
+## Table of Contents
+- [Example](README.md#example)
+- [Input](README.md#input)
+- [Output](README.md#output)
+- [Configuration](README.md#configuration)
+  - [Overview](README.md#overview)
+  - [Release](README.md#release)
+  - [Branch](README.md#branch)
+  - [Categories](README.md#categories)
+  - [Bump](README.md#bump)
+  - [Files](README.md#files)
+- [Attention](README.md#attention)
+- [License](README.md#license)
+
 ## Example
 <div align="center">
 <img src="documents/release.png">
