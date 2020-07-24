@@ -10,16 +10,20 @@ export const versionList = ["major", "minor", "patch"] as const;
 
 export type Version = typeof versionList[number];
 
+export function calculateCurrentVersion(config: Config, release: Release | null): string {
+    if (release == null) {
+        return config.release.initialVersion;
+    }
+    return cleanTagName(config, release.tagName);
+}
+
 export function calculateNextVersion(
     option: Option,
     config: Config,
     release: Release | null,
     changes: Changes[]
 ): string {
-    if (release == null) {
-        return config.release.initialVersion;
-    }
-    const currentVersion = cleanTagName(config, release.tagName);
+    const currentVersion = calculateCurrentVersion(config, release);
     let major = semver.major(currentVersion);
     let minor = semver.minor(currentVersion);
     let patch = semver.patch(currentVersion);

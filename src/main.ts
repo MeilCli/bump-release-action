@@ -6,7 +6,7 @@ import { listCommits } from "./commit";
 import { getLatestRelease, createRelease } from "./release";
 import { listPullRequests } from "./pull_request";
 import { calculateChanges } from "./calculate";
-import { calculateNextVersion } from "./version";
+import { calculateNextVersion, calculateCurrentVersion } from "./version";
 import { echoCurrentBranch, pushVersionBranch, pushBaseBranch } from "./git";
 import { replaceVersions } from "./file";
 
@@ -31,6 +31,7 @@ async function run() {
         }
         const commitAndPullRequests = await listPullRequests(client, option, config, commits);
         const changes = calculateChanges(commitAndPullRequests);
+        const currentVersion = calculateCurrentVersion(config, latestRelease);
         const nextVersion = calculateNextVersion(option, config, latestRelease, changes);
 
         const hasChanges = replaceVersions(option, config, nextVersion);
@@ -39,6 +40,8 @@ async function run() {
         }
         await pushVersionBranch(option, config, nextVersion);
         const createdReleaseJson = await createRelease(client, option, config, nextVersion, changes);
+        core.setOutput("current_version", currentVersion);
+        core.setOutput("next_version", nextVersion);
         core.setOutput("release", createdReleaseJson);
     } catch (error) {
         core.setFailed(error.message);

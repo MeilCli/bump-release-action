@@ -29,6 +29,10 @@ inputs:
   dry_run:
     description: 'if true, not create and push this changes, and output release informations'
 outputs:
+  current_version:
+    description: 'calculated current version'
+  next_version:
+    description: 'calculated next version'
   release:
     description: 'the response json of created release'
 runs:
