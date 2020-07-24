@@ -64,6 +64,8 @@ export async function createRelease(
     if (option.dryRun) {
         core.info("");
         core.info("--- Dry Run Create Release ---");
+        core.info(`draft: ${option.draft}`);
+        core.info(`preRelease: ${option.preRelease}`);
         core.info(`title: ${title}`);
         core.info(`tag: ${tag}`);
         core.info("body:");
@@ -77,8 +79,8 @@ export async function createRelease(
         body: body,
         tag_name: tag,
         target_commitish: config.branch.baseBranch,
-        draft: false,
-        prerelease: false,
+        draft: option.draft,
+        prerelease: option.preRelease,
     });
 
     if (400 <= response.status) {

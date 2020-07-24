@@ -9,6 +9,8 @@ export interface Option {
     configPath: string;
     bump: Version | null;
     dryRun: boolean;
+    preRelease: boolean;
+    draft: boolean;
 }
 
 export function getOption(): Option {
@@ -20,6 +22,8 @@ export function getOption(): Option {
         configPath: getInput("config_path"),
         bump: getVersionOrNull("bump"),
         dryRun: getInputOrNull("dry_run") == "true",
+        preRelease: getInputOrNull("pre_release") == "true",
+        draft: getInputOrNull("draft") == "true",
     };
 }
 

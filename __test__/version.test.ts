@@ -15,6 +15,8 @@ function createOption(defaultBump: Version | null): Option {
         configPath: "",
         bump: defaultBump,
         dryRun: false,
+        preRelease: false,
+        draft: false,
     };
 }
 

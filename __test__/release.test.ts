@@ -14,6 +14,8 @@ function createOption(): Option {
         configPath: "",
         bump: null,
         dryRun: false,
+        preRelease: false,
+        draft: false,
     };
 }
 
