@@ -19,7 +19,8 @@ on:
       draft:
         description: 'draft, true or false'
         default: 'false'
-      pre_release: 'pre release, true or false'
+      pre_release:
+        description: 'pre release, true or false'
         default: 'false'
 
 jobs:
