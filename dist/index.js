@@ -12037,7 +12037,7 @@ function calculateNextVersion(option, config, release, changes) {
     var major = semver.major(currentVersion);
     var minor = semver.minor(currentVersion);
     var patch = semver.patch(currentVersion);
-    var bump = config.bump.default;
+    var bump = null;
     for (var _i = 0, changes_1 = changes; _i < changes_1.length; _i++) {
         var change = changes_1[_i];
         if (bump == "major") {
@@ -12102,6 +12102,9 @@ function calculateNextVersion(option, config, release, changes) {
                 }
             }
         }
+    }
+    if (bump == null) {
+        bump = config.bump.default;
     }
     if (option.bump != null) {
         bump = option.bump;
