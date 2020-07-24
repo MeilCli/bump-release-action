@@ -354,6 +354,9 @@ This configuration is array value, if provide configuration, commit version up a
   - optional
   - note: use when contained multiple version in single line
 
+## Attention
+Currently, cannot publish action to Marketplace using API. So, if you publish action to Marketplace, open release that published by this action, click edit release, and click update release button. If you are using a version branch, it is enough to do it only when the version branch changes or when the README is updated.
+
 ## License
 MIT License
 
