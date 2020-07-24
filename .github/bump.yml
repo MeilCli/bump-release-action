@@ -4,6 +4,7 @@ release:
   tag-prefix: 'v'
 branch:
   version-branch-prefix: 'v'
+  bump-version-commit-prefix: 'v'
 categories:
   - title: 'Breaking Changes!'
     labels:
@@ -49,3 +50,13 @@ bump:
       - 'BreakingChange'
     commits:
       - 'breaking:'
+  minor:
+    labels:
+      - 'Feature'
+    commits:
+      - 'feature:'
+files:
+  - file-path: 'package.json'
+    line: 3
+  - file-path: 'package-lock.json'
+    line: 3
