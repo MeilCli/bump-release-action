@@ -4503,34 +4503,37 @@ function pushBaseBranch(option, config, version) {
                     return [4 /*yield*/, exec.exec("git config --local user.email " + option.commitEmail)];
                 case 2:
                     _d.sent();
-                    return [4 /*yield*/, checkoutBranch(config.branch.baseBranch, false)];
+                    return [4 /*yield*/, exec.exec("git config pull.ff only")];
                 case 3:
                     _d.sent();
-                    return [4 /*yield*/, exec.exec("git pull origin " + config.branch.baseBranch)];
+                    return [4 /*yield*/, checkoutBranch(config.branch.baseBranch, false)];
                 case 4:
                     _d.sent();
-                    _i = 0, _c = config.files;
-                    _d.label = 5;
+                    return [4 /*yield*/, exec.exec("git pull origin " + config.branch.baseBranch)];
                 case 5:
-                    if (!(_i < _c.length)) return [3 /*break*/, 8];
+                    _d.sent();
+                    _i = 0, _c = config.files;
+                    _d.label = 6;
+                case 6:
+                    if (!(_i < _c.length)) return [3 /*break*/, 9];
                     file = _c[_i];
                     return [4 /*yield*/, exec.exec("git add " + file.filePath)];
-                case 6:
-                    _d.sent();
-                    _d.label = 7;
                 case 7:
-                    _i++;
-                    return [3 /*break*/, 5];
+                    _d.sent();
+                    _d.label = 8;
                 case 8:
+                    _i++;
+                    return [3 /*break*/, 6];
+                case 9:
                     messagePrefix = "" + ((_a = config.branch.bumpVersionCommitPrefix) !== null && _a !== void 0 ? _a : "");
                     messagePostfix = "" + ((_b = config.branch.bumpVersionCommitPostfix) !== null && _b !== void 0 ? _b : "");
                     message = "" + messagePrefix + version + messagePostfix;
                     return [4 /*yield*/, exec.exec("git commit --no-edit -m " + message)];
-                case 9:
+                case 10:
                     _d.sent();
                     remote = "https://x-access-token:" + option.githubToken + "@github.com/" + option.repository + ".git";
                     return [4 /*yield*/, exec.exec("git push " + remote + " HEAD:" + config.branch.baseBranch)];
-                case 10:
+                case 11:
                     _d.sent();
                     return [2 /*return*/];
             }
