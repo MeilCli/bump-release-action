@@ -2390,6 +2390,7 @@ function listCommits(client, owner, repository, number) {
                     selector = function (data) {
                         return {
                             sha: data.sha,
+                            unixTime: 0,
                             message: data.commit.message,
                         };
                     };
@@ -7990,7 +7991,11 @@ function calculateChanges(commitAndPullRequests) {
     for (var _i = 0, commitAndPullRequests_1 = commitAndPullRequests; _i < commitAndPullRequests_1.length; _i++) {
         var commitAndPullRequest = commitAndPullRequests_1[_i];
         if (commitAndPullRequest[1] != null) {
-            result.push({ type: "pull_request", value: commitAndPullRequest[1] });
+            result.push({
+                type: "pull_request",
+                unixTime: commitAndPullRequest[0].unixTime,
+                value: commitAndPullRequest[1],
+            });
             for (var _a = 0, _b = commitAndPullRequest[1].commits; _a < _b.length; _a++) {
                 var commit = _b[_a];
                 skipCommitShas.push(commit.sha);
@@ -8000,7 +8005,7 @@ function calculateChanges(commitAndPullRequests) {
         if (0 <= skipCommitShas.indexOf(commitAndPullRequest[0].sha)) {
             continue;
         }
-        result.push({ type: "commit", value: commitAndPullRequest[0] });
+        result.push({ type: "commit", unixTime: commitAndPullRequest[0].unixTime, value: commitAndPullRequest[0] });
     }
     return result;
 }
@@ -8470,13 +8475,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getConfigFromYaml = exports.getConfigFromFile = exports.defaultBump = exports.defaultCategoryTitle = exports.defaultCreateMinorVersionBranch = exports.defaultCreateMajorVersionBranch = exports.defaultBaseBranch = exports.defaultInitialVersion = exports.defaultBodyWhenEmptyChanges = exports.defaultBodyTitle = void 0;
+exports.getConfigFromYaml = exports.getConfigFromFile = exports.defaultBump = exports.defaultCategoryTitle = exports.defaultCreateMinorVersionBranch = exports.defaultCreateMajorVersionBranch = exports.defaultBaseBranch = exports.defaultSortDirection = exports.defaultSortBy = exports.defaultInitialVersion = exports.defaultBodyWhenEmptyChanges = exports.defaultBodyTitle = void 0;
 var fs = __importStar(__webpack_require__(747));
 var yaml = __importStar(__webpack_require__(414));
 var version_1 = __webpack_require__(775);
+var release_1 = __webpack_require__(825);
 exports.defaultBodyTitle = "What's Changed";
 exports.defaultBodyWhenEmptyChanges = "This release has not changes";
 exports.defaultInitialVersion = "1.0.0";
+exports.defaultSortBy = "commit_at";
+exports.defaultSortDirection = "descending";
 exports.defaultBaseBranch = "master";
 exports.defaultCreateMajorVersionBranch = true;
 exports.defaultCreateMinorVersionBranch = false;
@@ -8488,56 +8496,87 @@ function getConfigFromFile(filePath) {
 }
 exports.getConfigFromFile = getConfigFromFile;
 function getConfigFromYaml(text) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20;
     var root = yaml.load(text);
+    var sortBy = exports.defaultSortBy;
+    for (var _i = 0, releaseSortByList_1 = release_1.releaseSortByList; _i < releaseSortByList_1.length; _i++) {
+        var releaseSortBy = releaseSortByList_1[_i];
+        if (releaseSortBy == ((_a = root === null || root === void 0 ? void 0 : root.release) === null || _a === void 0 ? void 0 : _a["sort-by"])) {
+            sortBy = releaseSortBy;
+            break;
+        }
+    }
+    var sortDirection = exports.defaultSortDirection;
+    for (var _21 = 0, releaseSortDirectionList_1 = release_1.releaseSortDirectionList; _21 < releaseSortDirectionList_1.length; _21++) {
+        var releaseSortDirection = releaseSortDirectionList_1[_21];
+        if (releaseSortDirection == ((_b = root === null || root === void 0 ? void 0 : root.release) === null || _b === void 0 ? void 0 : _b["sort-direction"])) {
+            sortDirection = releaseSortDirection;
+            break;
+        }
+    }
+    var commitNoteReplacers = [];
+    if (((_c = root === null || root === void 0 ? void 0 : root.release) === null || _c === void 0 ? void 0 : _c["commit-note-replacers"]) != undefined) {
+        for (var _22 = 0, _23 = root.release["commit-note-replacers"]; _22 < _23.length; _22++) {
+            var replacer = _23[_22];
+            if (replacer["replace-prefix"] != undefined && replacer["new-prefix"] != undefined) {
+                commitNoteReplacers.push({
+                    replacePrefix: replacer["replace-prefix"],
+                    newPrefix: replacer["new-prefix"],
+                });
+            }
+        }
+    }
     var release = {
-        titlePrefix: (_a = root === null || root === void 0 ? void 0 : root.release) === null || _a === void 0 ? void 0 : _a["title-prefix"],
-        titlePostfix: (_b = root === null || root === void 0 ? void 0 : root.release) === null || _b === void 0 ? void 0 : _b["title-postfix"],
-        bodyTitle: (_d = (_c = root === null || root === void 0 ? void 0 : root.release) === null || _c === void 0 ? void 0 : _c["body-title"]) !== null && _d !== void 0 ? _d : exports.defaultBodyTitle,
-        bodyWhenEmptyChanges: (_f = (_e = root === null || root === void 0 ? void 0 : root.release) === null || _e === void 0 ? void 0 : _e["body-when-empty-changes"]) !== null && _f !== void 0 ? _f : exports.defaultBodyWhenEmptyChanges,
-        initialVersion: (_h = (_g = root === null || root === void 0 ? void 0 : root.release) === null || _g === void 0 ? void 0 : _g["initial-version"]) !== null && _h !== void 0 ? _h : exports.defaultInitialVersion,
-        tagPrefix: (_j = root === null || root === void 0 ? void 0 : root.release) === null || _j === void 0 ? void 0 : _j["tag-prefix"],
-        tagPostfix: (_k = root === null || root === void 0 ? void 0 : root.release) === null || _k === void 0 ? void 0 : _k["tag-postfix"],
+        titlePrefix: (_d = root === null || root === void 0 ? void 0 : root.release) === null || _d === void 0 ? void 0 : _d["title-prefix"],
+        titlePostfix: (_e = root === null || root === void 0 ? void 0 : root.release) === null || _e === void 0 ? void 0 : _e["title-postfix"],
+        bodyTitle: (_g = (_f = root === null || root === void 0 ? void 0 : root.release) === null || _f === void 0 ? void 0 : _f["body-title"]) !== null && _g !== void 0 ? _g : exports.defaultBodyTitle,
+        bodyWhenEmptyChanges: (_j = (_h = root === null || root === void 0 ? void 0 : root.release) === null || _h === void 0 ? void 0 : _h["body-when-empty-changes"]) !== null && _j !== void 0 ? _j : exports.defaultBodyWhenEmptyChanges,
+        initialVersion: (_l = (_k = root === null || root === void 0 ? void 0 : root.release) === null || _k === void 0 ? void 0 : _k["initial-version"]) !== null && _l !== void 0 ? _l : exports.defaultInitialVersion,
+        tagPrefix: (_m = root === null || root === void 0 ? void 0 : root.release) === null || _m === void 0 ? void 0 : _m["tag-prefix"],
+        tagPostfix: (_o = root === null || root === void 0 ? void 0 : root.release) === null || _o === void 0 ? void 0 : _o["tag-postfix"],
+        sortBy: sortBy,
+        sortDirection: sortDirection,
+        commitNoteReplacers: commitNoteReplacers,
     };
     var branch = {
-        baseBranch: (_m = (_l = root === null || root === void 0 ? void 0 : root.branch) === null || _l === void 0 ? void 0 : _l["base-branch"]) !== null && _m !== void 0 ? _m : exports.defaultBaseBranch,
-        versionBranchPrefix: (_o = root === null || root === void 0 ? void 0 : root.branch) === null || _o === void 0 ? void 0 : _o["version-branch-prefix"],
-        versionBranchPostfix: (_p = root === null || root === void 0 ? void 0 : root.branch) === null || _p === void 0 ? void 0 : _p["version-branch-postfix"],
-        createMajorVersionBranch: (_r = (_q = root === null || root === void 0 ? void 0 : root.branch) === null || _q === void 0 ? void 0 : _q["create-major-version-branch"]) !== null && _r !== void 0 ? _r : exports.defaultCreateMajorVersionBranch,
-        createMinorVersionBranch: (_t = (_s = root === null || root === void 0 ? void 0 : root.branch) === null || _s === void 0 ? void 0 : _s["create-minor-version-branch"]) !== null && _t !== void 0 ? _t : exports.defaultCreateMinorVersionBranch,
-        bumpVersionCommitPrefix: (_u = root === null || root === void 0 ? void 0 : root.branch) === null || _u === void 0 ? void 0 : _u["bump-version-commit-prefix"],
-        bumpVersionCommitPostfix: (_v = root === null || root === void 0 ? void 0 : root.branch) === null || _v === void 0 ? void 0 : _v["bump-version-commit-postfix"],
+        baseBranch: (_q = (_p = root === null || root === void 0 ? void 0 : root.branch) === null || _p === void 0 ? void 0 : _p["base-branch"]) !== null && _q !== void 0 ? _q : exports.defaultBaseBranch,
+        versionBranchPrefix: (_r = root === null || root === void 0 ? void 0 : root.branch) === null || _r === void 0 ? void 0 : _r["version-branch-prefix"],
+        versionBranchPostfix: (_s = root === null || root === void 0 ? void 0 : root.branch) === null || _s === void 0 ? void 0 : _s["version-branch-postfix"],
+        createMajorVersionBranch: (_u = (_t = root === null || root === void 0 ? void 0 : root.branch) === null || _t === void 0 ? void 0 : _t["create-major-version-branch"]) !== null && _u !== void 0 ? _u : exports.defaultCreateMajorVersionBranch,
+        createMinorVersionBranch: (_w = (_v = root === null || root === void 0 ? void 0 : root.branch) === null || _v === void 0 ? void 0 : _v["create-minor-version-branch"]) !== null && _w !== void 0 ? _w : exports.defaultCreateMinorVersionBranch,
+        bumpVersionCommitPrefix: (_x = root === null || root === void 0 ? void 0 : root.branch) === null || _x === void 0 ? void 0 : _x["bump-version-commit-prefix"],
+        bumpVersionCommitPostfix: (_y = root === null || root === void 0 ? void 0 : root.branch) === null || _y === void 0 ? void 0 : _y["bump-version-commit-postfix"],
     };
     var categories = [];
     if ((root === null || root === void 0 ? void 0 : root.categories) != undefined) {
-        for (var _i = 0, _18 = root.categories; _i < _18.length; _i++) {
-            var category = _18[_i];
+        for (var _24 = 0, _25 = root.categories; _24 < _25.length; _24++) {
+            var category = _25[_24];
             categories.push({
-                title: (_w = category.title) !== null && _w !== void 0 ? _w : exports.defaultCategoryTitle,
-                labels: (_x = category.labels) !== null && _x !== void 0 ? _x : [],
+                title: (_z = category.title) !== null && _z !== void 0 ? _z : exports.defaultCategoryTitle,
+                labels: (_0 = category.labels) !== null && _0 !== void 0 ? _0 : [],
                 skipLabel: category["skip-label"],
-                commits: (_y = category.commits) !== null && _y !== void 0 ? _y : [],
+                commits: (_1 = category.commits) !== null && _1 !== void 0 ? _1 : [],
                 changesPrefix: category["changes-prefix"],
                 changesPostfix: category["changes-postfix"],
             });
         }
     }
     var major = {
-        labels: (_1 = (_0 = (_z = root === null || root === void 0 ? void 0 : root.bump) === null || _z === void 0 ? void 0 : _z.major) === null || _0 === void 0 ? void 0 : _0.labels) !== null && _1 !== void 0 ? _1 : [],
-        commits: (_4 = (_3 = (_2 = root === null || root === void 0 ? void 0 : root.bump) === null || _2 === void 0 ? void 0 : _2.major) === null || _3 === void 0 ? void 0 : _3.commits) !== null && _4 !== void 0 ? _4 : [],
+        labels: (_4 = (_3 = (_2 = root === null || root === void 0 ? void 0 : root.bump) === null || _2 === void 0 ? void 0 : _2.major) === null || _3 === void 0 ? void 0 : _3.labels) !== null && _4 !== void 0 ? _4 : [],
+        commits: (_7 = (_6 = (_5 = root === null || root === void 0 ? void 0 : root.bump) === null || _5 === void 0 ? void 0 : _5.major) === null || _6 === void 0 ? void 0 : _6.commits) !== null && _7 !== void 0 ? _7 : [],
     };
     var minor = {
-        labels: (_7 = (_6 = (_5 = root === null || root === void 0 ? void 0 : root.bump) === null || _5 === void 0 ? void 0 : _5.minor) === null || _6 === void 0 ? void 0 : _6.labels) !== null && _7 !== void 0 ? _7 : [],
-        commits: (_10 = (_9 = (_8 = root === null || root === void 0 ? void 0 : root.bump) === null || _8 === void 0 ? void 0 : _8.minor) === null || _9 === void 0 ? void 0 : _9.commits) !== null && _10 !== void 0 ? _10 : [],
+        labels: (_10 = (_9 = (_8 = root === null || root === void 0 ? void 0 : root.bump) === null || _8 === void 0 ? void 0 : _8.minor) === null || _9 === void 0 ? void 0 : _9.labels) !== null && _10 !== void 0 ? _10 : [],
+        commits: (_13 = (_12 = (_11 = root === null || root === void 0 ? void 0 : root.bump) === null || _11 === void 0 ? void 0 : _11.minor) === null || _12 === void 0 ? void 0 : _12.commits) !== null && _13 !== void 0 ? _13 : [],
     };
     var patch = {
-        labels: (_13 = (_12 = (_11 = root === null || root === void 0 ? void 0 : root.bump) === null || _11 === void 0 ? void 0 : _11.patch) === null || _12 === void 0 ? void 0 : _12.labels) !== null && _13 !== void 0 ? _13 : [],
-        commits: (_16 = (_15 = (_14 = root === null || root === void 0 ? void 0 : root.bump) === null || _14 === void 0 ? void 0 : _14.patch) === null || _15 === void 0 ? void 0 : _15.commits) !== null && _16 !== void 0 ? _16 : [],
+        labels: (_16 = (_15 = (_14 = root === null || root === void 0 ? void 0 : root.bump) === null || _14 === void 0 ? void 0 : _14.patch) === null || _15 === void 0 ? void 0 : _15.labels) !== null && _16 !== void 0 ? _16 : [],
+        commits: (_19 = (_18 = (_17 = root === null || root === void 0 ? void 0 : root.bump) === null || _17 === void 0 ? void 0 : _17.patch) === null || _18 === void 0 ? void 0 : _18.commits) !== null && _19 !== void 0 ? _19 : [],
     };
     var bumpDefault = exports.defaultBump;
-    for (var _19 = 0, versionList_1 = version_1.versionList; _19 < versionList_1.length; _19++) {
-        var version = versionList_1[_19];
-        if (version == ((_17 = root === null || root === void 0 ? void 0 : root.bump) === null || _17 === void 0 ? void 0 : _17.default)) {
+    for (var _26 = 0, versionList_1 = version_1.versionList; _26 < versionList_1.length; _26++) {
+        var version = versionList_1[_26];
+        if (version == ((_20 = root === null || root === void 0 ? void 0 : root.bump) === null || _20 === void 0 ? void 0 : _20.default)) {
             bumpDefault = version;
             break;
         }
@@ -8550,8 +8589,8 @@ function getConfigFromYaml(text) {
     };
     var files = [];
     if ((root === null || root === void 0 ? void 0 : root.files) != undefined) {
-        for (var _20 = 0, _21 = root.files; _20 < _21.length; _20++) {
-            var file = _21[_20];
+        for (var _27 = 0, _28 = root.files; _27 < _28.length; _27++) {
+            var file = _28[_27];
             if (file["file-path"] == undefined || file.line == undefined) {
                 continue;
             }
@@ -9505,7 +9544,7 @@ function listCommits(config) {
                             text += data.toString();
                         },
                     };
-                    return [4 /*yield*/, exec.exec("git --no-pager log " + config.branch.baseBranch + " --pretty=format:\"%H %s\"", undefined, option)];
+                    return [4 /*yield*/, exec.exec("git --no-pager log " + config.branch.baseBranch + " --pretty=format:\"%H %at %s\"", undefined, option)];
                 case 1:
                     _a.sent();
                     // write line break
@@ -9519,10 +9558,12 @@ exports.listCommits = listCommits;
 function parseCommits(text) {
     var commitCreator = function (line) {
         var value = line.trim();
-        var spaceIndex = value.indexOf(" ");
-        var sha = value.slice(0, spaceIndex);
-        var message = value.slice(spaceIndex + 1, value.length);
-        return { sha: sha, message: message };
+        var spaceIndex1 = value.indexOf(" ");
+        var spaceIndex2 = value.indexOf(" ", spaceIndex1 + 1);
+        var sha = value.slice(0, spaceIndex1);
+        var unixTime = parseInt(value.slice(spaceIndex1 + 1, spaceIndex2));
+        var message = value.slice(spaceIndex2 + 1, value.length);
+        return { sha: sha, unixTime: unixTime, message: message };
     };
     return text
         .split(/[\r\n]/)
@@ -12362,8 +12403,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createReleaseBody = exports.createRelease = exports.getLatestRelease = void 0;
+exports.createReleaseBody = exports.createRelease = exports.getLatestRelease = exports.releaseSortDirectionList = exports.releaseSortByList = void 0;
 var core = __importStar(__webpack_require__(470));
+exports.releaseSortByList = ["note", "commit_at"];
+exports.releaseSortDirectionList = ["ascending", "descending"];
 function getLatestRelease(client, option) {
     return __awaiter(this, void 0, void 0, function () {
         var owner, repository, response, tagName, commitSha;
@@ -12453,16 +12496,39 @@ function createRelease(client, option, config, nextVersion, changes) {
 }
 exports.createRelease = createRelease;
 function createReleaseBody(option, config, changes) {
-    var _a, _b;
+    var categories = aggregateCategories(config, changes);
+    if (categories.length == 0 || categories.map(function (x) { return x[1].length; }).reduce(function (sum, current) { return sum + current; }, 0) == 0) {
+        return config.release.bodyWhenEmptyChanges;
+    }
+    var releaseNotes = aggregateReleaseNotes(option, config, categories);
+    var result = "## " + config.release.bodyTitle + "\n";
+    for (var _i = 0, releaseNotes_1 = releaseNotes; _i < releaseNotes_1.length; _i++) {
+        var releaseNote = releaseNotes_1[_i];
+        if (releaseNote[1].length == 0) {
+            continue;
+        }
+        result += "### " + releaseNote[0] + "\n";
+        for (var _a = 0, _b = releaseNote[1]; _a < _b.length; _a++) {
+            var note = _b[_a];
+            result += "- " + note + "\n";
+        }
+    }
+    if (result.endsWith("\n")) {
+        result = result.slice(0, result.length - 1);
+    }
+    return result;
+}
+exports.createReleaseBody = createReleaseBody;
+function aggregateCategories(config, changes) {
     var categories = [];
-    for (var _i = 0, _c = config.categories; _i < _c.length; _i++) {
-        var category = _c[_i];
+    for (var _i = 0, _a = config.categories; _i < _a.length; _i++) {
+        var category = _a[_i];
         categories.push([category, []]);
     }
-    for (var _d = 0, changes_1 = changes; _d < changes_1.length; _d++) {
-        var change = changes_1[_d];
-        for (var _e = 0, categories_1 = categories; _e < categories_1.length; _e++) {
-            var category = categories_1[_e];
+    for (var _b = 0, changes_1 = changes; _b < changes_1.length; _b++) {
+        var change = changes_1[_b];
+        for (var _c = 0, categories_1 = categories; _c < categories_1.length; _c++) {
+            var category = categories_1[_c];
             var found = false;
             if (change.type == "pull_request") {
                 var pullRequest = change.value;
@@ -12470,8 +12536,8 @@ function createReleaseBody(option, config, changes) {
                     pullRequest.labels.map(function (x) { return x.name; }).includes(category[0].skipLabel)) {
                     continue;
                 }
-                for (var _f = 0, _g = pullRequest.labels.map(function (x) { return x.name; }); _f < _g.length; _f++) {
-                    var label = _g[_f];
+                for (var _d = 0, _e = pullRequest.labels.map(function (x) { return x.name; }); _d < _e.length; _d++) {
+                    var label = _e[_d];
                     if (category[0].labels.includes(label)) {
                         category[1].push(change);
                         found = true;
@@ -12481,8 +12547,8 @@ function createReleaseBody(option, config, changes) {
             }
             else if (change.type == "commit") {
                 var commit = change.value;
-                for (var _h = 0, _j = category[0].commits; _h < _j.length; _h++) {
-                    var prefix = _j[_h];
+                for (var _f = 0, _g = category[0].commits; _f < _g.length; _f++) {
+                    var prefix = _g[_f];
                     if (commit.message.startsWith(prefix)) {
                         category[1].push(change);
                         found = true;
@@ -12495,32 +12561,73 @@ function createReleaseBody(option, config, changes) {
             }
         }
     }
-    if (categories.length == 0 || categories.map(function (x) { return x[1].length; }).reduce(function (sum, current) { return sum + current; }, 0) == 0) {
-        return config.release.bodyWhenEmptyChanges;
-    }
-    var result = "## " + config.release.bodyTitle + "\n";
-    for (var _k = 0, categories_2 = categories; _k < categories_2.length; _k++) {
-        var category = categories_2[_k];
-        if (category[1].length == 0) {
-            continue;
-        }
-        result += "### " + category[0].title + "\n";
-        for (var _l = 0, _m = category[1]; _l < _m.length; _l++) {
-            var change = _m[_l];
-            result += "- " + ((_a = category[0].changesPrefix) !== null && _a !== void 0 ? _a : "") + createChange(option, change) + ((_b = category[0].changesPostfix) !== null && _b !== void 0 ? _b : "") + "\n";
-        }
-    }
-    return result;
+    return categories;
 }
-exports.createReleaseBody = createReleaseBody;
-function createChange(option, change) {
+function aggregateReleaseNotes(option, config, categories) {
+    var _a, _b;
+    var releaseNotes = [];
+    var _loop_1 = function (category) {
+        var releaseNoteRoot = [category[0].title, []];
+        var findReleaseNoteRoot = releaseNotes.find(function (x) { return x[0] == category[0].title; });
+        if (findReleaseNoteRoot == undefined) {
+            releaseNotes.push(releaseNoteRoot);
+        }
+        else {
+            releaseNoteRoot = findReleaseNoteRoot;
+        }
+        var changes = category[1];
+        for (var _i = 0, changes_2 = changes; _i < changes_2.length; _i++) {
+            var change = changes_2[_i];
+            var releaseNotePrefix = (_a = category[0].changesPrefix) !== null && _a !== void 0 ? _a : "";
+            var releaseNotePostfix = (_b = category[0].changesPostfix) !== null && _b !== void 0 ? _b : "";
+            releaseNoteRoot[1].push([
+                "" + releaseNotePrefix + createReleaseNote(option, config, change) + releaseNotePostfix,
+                change.unixTime,
+            ]);
+        }
+    };
+    for (var _i = 0, categories_2 = categories; _i < categories_2.length; _i++) {
+        var category = categories_2[_i];
+        _loop_1(category);
+    }
+    return releaseNotes.map(function (x) {
+        var notes = x[1];
+        if (config.release.sortBy == "commit_at") {
+            if (config.release.sortDirection == "descending") {
+                notes.sort(function (a, b) { return (a[1] < b[1] ? 1 : -1); });
+            }
+            if (config.release.sortDirection == "ascending") {
+                notes.sort(function (a, b) { return (a[1] < b[1] ? -1 : 1); });
+            }
+        }
+        if (config.release.sortBy == "note") {
+            if (config.release.sortDirection == "descending") {
+                notes.sort(function (a, b) { return b[0].localeCompare(a[0]); });
+            }
+            if (config.release.sortDirection == "ascending") {
+                notes.sort(function (a, b) { return a[0].localeCompare(b[0]); });
+            }
+        }
+        return [x[0], notes.map(function (y) { return y[0]; })];
+    });
+}
+function createReleaseNote(option, config, change) {
     if (change.type == "pull_request") {
         var pullRequest = change.value;
         return pullRequest.title + " ([#" + pullRequest.number + "](" + pullRequest.htmlUrl + ")) @" + pullRequest.user.login;
     }
     if (change.type == "commit") {
         var commit = change.value;
-        return commit.message + " (https://github.com/" + option.repository + "/commit/" + commit.sha + ")";
+        var commitMessage = commit.message;
+        for (var _i = 0, _a = config.release.commitNoteReplacers; _i < _a.length; _i++) {
+            var replacer = _a[_i];
+            var replacePrefix = replacer.replacePrefix;
+            if (commitMessage.startsWith(replacePrefix)) {
+                commitMessage = replacer.newPrefix + commitMessage.slice(replacePrefix.length, commitMessage.length);
+                break;
+            }
+        }
+        return commitMessage + " (https://github.com/" + option.repository + "/commit/" + commit.sha + ")";
     }
     return "";
 }
