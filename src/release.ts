@@ -176,7 +176,7 @@ function aggregateReleaseNotes(
             const releaseNotePrefix = category[0].changesPrefix ?? "";
             const releaseNotePostfix = category[0].changesPostfix ?? "";
             releaseNoteRoot[1].push([
-                `${releaseNotePrefix}${createReleaseNote(option, change)}${releaseNotePostfix}`,
+                `${releaseNotePrefix}${createReleaseNote(option, config, change)}${releaseNotePostfix}`,
                 change.unixTime,
             ]);
         }
@@ -206,14 +206,22 @@ function aggregateReleaseNotes(
     });
 }
 
-function createReleaseNote(option: Option, change: Changes): string {
+function createReleaseNote(option: Option, config: Config, change: Changes): string {
     if (change.type == "pull_request") {
         const pullRequest = change.value as PullRequest;
         return `${pullRequest.title} ([#${pullRequest.number}](${pullRequest.htmlUrl})) @${pullRequest.user.login}`;
     }
     if (change.type == "commit") {
         const commit = change.value as Commit;
-        return `${commit.message} (https://github.com/${option.repository}/commit/${commit.sha})`;
+        let commitMessage = commit.message;
+        for (const replacer of config.release.commitNoteReplacers) {
+            const replacePrefix = replacer.replacePrefix;
+            if (commitMessage.startsWith(replacePrefix)) {
+                commitMessage = replacer.newPrefix + commitMessage.slice(replacePrefix.length, commitMessage.length);
+                break;
+            }
+        }
+        return `${commitMessage} (https://github.com/${option.repository}/commit/${commit.sha})`;
     }
     return "";
 }

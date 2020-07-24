@@ -1,5 +1,5 @@
 import { Option } from "../src/option";
-import { Config } from "../src/config";
+import { Config, ConfigReleaseCommitNoteReplacer } from "../src/config";
 import { PullRequest } from "../src/pull_request";
 import { Commit } from "../src/commit";
 import { calculateChanges } from "../src/calculate";
@@ -17,7 +17,11 @@ function createOption(): Option {
     };
 }
 
-function createConfig(sortBy: ReleaseSortBy = "commit_at", sortDirection: ReleaseSortDirection = "descending"): Config {
+function createConfig(
+    sortBy: ReleaseSortBy = "commit_at",
+    sortDirection: ReleaseSortDirection = "descending",
+    replacers: ConfigReleaseCommitNoteReplacer[] = []
+): Config {
     return {
         release: {
             titlePrefix: undefined,
@@ -29,6 +33,7 @@ function createConfig(sortBy: ReleaseSortBy = "commit_at", sortDirection: Releas
             tagPostfix: undefined,
             sortBy: sortBy,
             sortDirection: sortDirection,
+            commitNoteReplacers: replacers,
         },
         branch: {
             baseBranch: "master",
@@ -256,4 +261,30 @@ test("testCreateReleaseBodySortByNoteAndAscending", () => {
     const body = createReleaseBody(option, config, changes);
 
     expect(body).toBe(expectSortByNoteAndAscendingBody);
+});
+
+const expectReplacerBody = `## Title
+### Feature
+- PR-pr-1 ([#0](https://github.com/MeilCli/bump-release-action)) @MeilCli
+- menu (https://github.com/MeilCli/bump-release-action/commit/feature: menu)
+### Bug Fix
+- menu (https://github.com/MeilCli/bump-release-action/commit/bug: menu)
+- PR-pr-2 ([#0](https://github.com/MeilCli/bump-release-action)) @MeilCli`.replace("\r\n", "\n");
+
+test("testCreateReleaseBodyWithReplacer", () => {
+    const option = createOption();
+    const config = createConfig("commit_at", "descending", [
+        { replacePrefix: "feature: ", newPrefix: "" },
+        { replacePrefix: "bug: ", newPrefix: "" },
+    ]);
+    const commitAndPullRequests = createCommitAndPullRequests([
+        ["bug: menu", null],
+        ["pr-1", [2, "feature"]],
+        ["pr-2", [3, "bug"]],
+        ["feature: menu", null],
+    ]);
+    const changes = calculateChanges(commitAndPullRequests);
+    const body = createReleaseBody(option, config, changes);
+
+    expect(body).toBe(expectReplacerBody);
 });

@@ -32,6 +32,12 @@ export interface ConfigRelease {
     tagPostfix: string | undefined;
     sortBy: ReleaseSortBy;
     sortDirection: ReleaseSortDirection;
+    commitNoteReplacers: ConfigReleaseCommitNoteReplacer[];
+}
+
+export interface ConfigReleaseCommitNoteReplacer {
+    replacePrefix: string;
+    newPrefix: string;
 }
 
 export interface ConfigBranch {
@@ -89,6 +95,12 @@ interface YamlRelease {
     "tag-postfix": string | undefined;
     "sort-by": string | undefined;
     "sort-direction": string | undefined;
+    "commit-note-replacers": YamlReleaseCommitNoteReplacer[] | undefined;
+}
+
+interface YamlReleaseCommitNoteReplacer {
+    "replace-prefix": string | undefined;
+    "new-prefix": string | undefined;
 }
 
 interface YamlBranch {
@@ -149,6 +161,17 @@ export function getConfigFromYaml(text: string): Config {
             break;
         }
     }
+    const commitNoteReplacers: ConfigReleaseCommitNoteReplacer[] = [];
+    if (root?.release?.["commit-note-replacers"] != undefined) {
+        for (const replacer of root.release["commit-note-replacers"]) {
+            if (replacer["replace-prefix"] != undefined && replacer["new-prefix"] != undefined) {
+                commitNoteReplacers.push({
+                    replacePrefix: replacer["replace-prefix"],
+                    newPrefix: replacer["new-prefix"],
+                });
+            }
+        }
+    }
     const release: ConfigRelease = {
         titlePrefix: root?.release?.["title-prefix"],
         titlePostfix: root?.release?.["title-postfix"],
@@ -159,6 +182,7 @@ export function getConfigFromYaml(text: string): Config {
         tagPostfix: root?.release?.["tag-postfix"],
         sortBy: sortBy,
         sortDirection: sortDirection,
+        commitNoteReplacers: commitNoteReplacers,
     };
     const branch: ConfigBranch = {
         baseBranch: root?.branch?.["base-branch"] ?? defaultBaseBranch,

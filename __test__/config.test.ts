@@ -11,6 +11,11 @@ release:
   tag-postfix: '-stable'
   sort-by: 'note'
   sort-direction: 'ascending'
+  commit-note-replacers:
+    - replace-prefix: 'feature: '
+      new-prefix: 'feature '
+    - replace-prefix: 'document: '
+      new-prefix: 'document '
 branch:
   base-branch: 'develop'
   version-branch-prefix: 'v'
@@ -67,6 +72,12 @@ test("testFull", () => {
     expect(config.release.sortBy).toBe("note");
     expect(config.release.sortDirection).toBe("ascending");
 
+    expect(config.release.commitNoteReplacers.length).toBe(2);
+    expect(config.release.commitNoteReplacers[0].replacePrefix).toBe("feature: ");
+    expect(config.release.commitNoteReplacers[0].newPrefix).toBe("feature ");
+    expect(config.release.commitNoteReplacers[1].replacePrefix).toBe("document: ");
+    expect(config.release.commitNoteReplacers[1].newPrefix).toBe("document ");
+
     expect(config.branch.baseBranch).toBe("develop");
     expect(config.branch.versionBranchPrefix).toBe("v");
     expect(config.branch.versionBranchPostfix).toBe("-stable");
@@ -112,6 +123,8 @@ test("testEmpty", () => {
     expect(config.release.sortBy).toBe("commit_at");
     expect(config.release.sortDirection).toBe("descending");
 
+    expect(config.release.commitNoteReplacers.length).toBe(0);
+
     expect(config.branch.baseBranch).toBe(Config.defaultBaseBranch);
     expect(config.branch.versionBranchPrefix).toBeUndefined();
     expect(config.branch.versionBranchPostfix).toBeUndefined();
@@ -151,6 +164,8 @@ test("testEmptyCategory", () => {
     expect(config.release.tagPostfix).toBeUndefined();
     expect(config.release.sortBy).toBe("commit_at");
     expect(config.release.sortDirection).toBe("descending");
+
+    expect(config.release.commitNoteReplacers.length).toBe(0);
 
     expect(config.branch.baseBranch).toBe(Config.defaultBaseBranch);
     expect(config.branch.versionBranchPrefix).toBeUndefined();

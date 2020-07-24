@@ -30,6 +30,7 @@ function createConfig(tagPrefix: string | undefined, tagPostfix: string | undefi
             tagPostfix: tagPostfix,
             sortBy: "commit_at",
             sortDirection: "descending",
+            commitNoteReplacers: [],
         },
         branch: {
             baseBranch: "master",
