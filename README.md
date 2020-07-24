@@ -49,7 +49,7 @@ jobs:
       - run: npm install
       - run: npm run build
       - run: npm run test
-      - uses: MeilCli/bump-release-action@master
+      - uses: MeilCli/bump-release-action@v1
         with:
           config_path: '.github/bump.yml'
           bump: ${{ github.event.inputs.bump }}
@@ -57,6 +57,7 @@ jobs:
           draft: ${{ github.event.inputs.draft }}
           pre_release: ${{ github.event.inputs.pre_release }}
 ```
+You can also pin to a [specific release](https://github.com/MeilCli/bump-release-action/releases) version in the format `@v1.x.x`
 
 ```yaml
 # .github/bump.yml
