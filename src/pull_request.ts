@@ -131,6 +131,7 @@ async function listCommits(
     const selector: (data: PullsListCommitsResponseData) => Commit = (data) => {
         return {
             sha: data.sha,
+            unixTime: 0,
             message: data.commit.message,
         };
     };
