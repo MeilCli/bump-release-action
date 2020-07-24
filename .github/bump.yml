@@ -17,6 +17,12 @@ categories:
     commits:
       - 'feature:'
     changes-prefix: ':gift: '
+  - title: 'Maintenance'
+    labels:
+      - Maintenance
+    commits:
+      - 'change:'
+    changes-prefix: ':hammer: '
   - title: 'Bug Fixes'
     labels:
       - 'Bug'
