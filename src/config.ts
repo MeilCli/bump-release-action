@@ -16,6 +16,7 @@ export interface Config {
     branch: ConfigBranch;
     categories: ConfigCategory[];
     bump: ConfigBump;
+    files: ConfigFile[];
 }
 
 export interface ConfigRelease {
@@ -34,6 +35,8 @@ export interface ConfigBranch {
     versionBranchPostfix: string | undefined;
     createMajorVersionBranch: boolean;
     createMinorVersionBranch: boolean;
+    bumpVersionCommitPrefix: string | undefined;
+    bumpVersionCommitPostfix: string | undefined;
 }
 
 export interface ConfigCategory {
@@ -52,6 +55,12 @@ export interface ConfigBump {
     patch: ConfigBumpVersion;
 }
 
+export interface ConfigFile {
+    filePath: string;
+    line: number;
+    start: number | undefined;
+}
+
 export interface ConfigBumpVersion {
     labels: string[];
     commits: string[];
@@ -62,6 +71,7 @@ interface YamlRoot {
     branch: YamlBranch | undefined;
     categories: YamlCategory[] | undefined;
     bump: YamlBump | undefined;
+    files: YamlFile[] | undefined;
 }
 
 interface YamlRelease {
@@ -80,6 +90,8 @@ interface YamlBranch {
     "version-branch-postfix": string | undefined;
     "create-major-version-branch": boolean | undefined;
     "create-minor-version-branch": boolean | undefined;
+    "bump-version-commit-prefix": string | undefined;
+    "bump-version-commit-postfix": string | undefined;
 }
 
 interface YamlCategory {
@@ -96,6 +108,12 @@ interface YamlBump {
     major: YamlBumpVersion | undefined;
     minor: YamlBumpVersion | undefined;
     patch: YamlBumpVersion | undefined;
+}
+
+interface YamlFile {
+    "file-path": string | undefined;
+    line: number | undefined;
+    start: number | undefined;
 }
 
 interface YamlBumpVersion {
@@ -125,6 +143,8 @@ export function getConfigFromYaml(text: string): Config {
         versionBranchPostfix: root?.branch?.["version-branch-postfix"],
         createMajorVersionBranch: root?.branch?.["create-major-version-branch"] ?? defaultCreateMajorVersionBranch,
         createMinorVersionBranch: root?.branch?.["create-minor-version-branch"] ?? defaultCreateMinorVersionBranch,
+        bumpVersionCommitPrefix: root?.branch?.["bump-version-commit-prefix"],
+        bumpVersionCommitPostfix: root?.branch?.["bump-version-commit-postfix"],
     };
     const categories: ConfigCategory[] = [];
     if (root?.categories != undefined) {
@@ -164,10 +184,24 @@ export function getConfigFromYaml(text: string): Config {
         minor: minor,
         patch: patch,
     };
+    const files: ConfigFile[] = [];
+    if (root?.files != undefined) {
+        for (const file of root.files) {
+            if (file["file-path"] == undefined || file.line == undefined) {
+                continue;
+            }
+            files.push({
+                filePath: file["file-path"],
+                line: file.line,
+                start: file.start,
+            });
+        }
+    }
     return {
         release: release,
         branch: branch,
         categories: categories,
         bump: bump,
+        files: files,
     };
 }

@@ -7,7 +7,8 @@ import { getLatestRelease, createRelease } from "./release";
 import { listPullRequests } from "./pull_request";
 import { calculateChanges } from "./calculate";
 import { calculateNextVersion } from "./version";
-import { echoCurrentBranch, pushVersionBranch } from "./git";
+import { echoCurrentBranch, pushVersionBranch, pushBaseBranch } from "./git";
+import { replaceVersions } from "./file";
 
 async function run() {
     try {
@@ -32,9 +33,11 @@ async function run() {
         const changes = calculateChanges(commitAndPullRequests);
         const nextVersion = calculateNextVersion(option, config, latestRelease, changes);
 
-        if (option.dryRun == false) {
-            await pushVersionBranch(option, config, nextVersion);
+        const hasChanges = replaceVersions(option, config, nextVersion);
+        if (hasChanges) {
+            await pushBaseBranch(option, config, nextVersion);
         }
+        await pushVersionBranch(option, config, nextVersion);
         const createdReleaseJson = await createRelease(client, option, config, nextVersion, changes);
         core.setOutput("release", createdReleaseJson);
     } catch (error) {

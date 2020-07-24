@@ -35,6 +35,8 @@ function createConfig(tagPrefix: string | undefined, tagPostfix: string | undefi
             versionBranchPostfix: undefined,
             createMajorVersionBranch: true,
             createMinorVersionBranch: false,
+            bumpVersionCommitPrefix: undefined,
+            bumpVersionCommitPostfix: undefined,
         },
         categories: [],
         bump: {
@@ -52,6 +54,7 @@ function createConfig(tagPrefix: string | undefined, tagPostfix: string | undefi
                 commits: ["patch:"],
             },
         },
+        files: [],
     };
 }
 

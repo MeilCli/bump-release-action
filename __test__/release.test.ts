@@ -34,6 +34,8 @@ function createConfig(): Config {
             versionBranchPostfix: undefined,
             createMajorVersionBranch: true,
             createMinorVersionBranch: false,
+            bumpVersionCommitPrefix: undefined,
+            bumpVersionCommitPostfix: undefined,
         },
         categories: [
             {
@@ -76,6 +78,7 @@ function createConfig(): Config {
                 commits: ["patch:"],
             },
         },
+        files: [],
     };
 }
 

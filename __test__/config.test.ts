@@ -15,6 +15,8 @@ branch:
   version-branch-postfix: '-stable'
   create-major-version-branch: false
   create-minor-version-branch: true
+  bump-version-commit-prefix: 'v'
+  bump-version-commit-postfix: '-stable'
 categories:
   - title: 'Feature'
     labels:
@@ -41,6 +43,13 @@ bump:
       - 'patch'
     commits:
       - 'patch:'
+files:
+  - file-path: 'version1.txt'
+    line: 1
+    start: 10
+  - file-path: 'version2.txt'
+    line: 2
+  - start: 5
 `;
 
 test("testFull", () => {
@@ -59,6 +68,8 @@ test("testFull", () => {
     expect(config.branch.versionBranchPostfix).toBe("-stable");
     expect(config.branch.createMajorVersionBranch).toBe(false);
     expect(config.branch.createMinorVersionBranch).toBe(true);
+    expect(config.branch.bumpVersionCommitPrefix).toBe("v");
+    expect(config.branch.bumpVersionCommitPostfix).toBe("-stable");
 
     expect(config.categories.length).toBe(1);
     expect(config.categories[0].title).toBe("Feature");
@@ -75,6 +86,13 @@ test("testFull", () => {
     expect(config.bump.minor.commits).toEqual(["minor:"]);
     expect(config.bump.patch.labels).toEqual(["patch"]);
     expect(config.bump.patch.commits).toEqual(["patch:"]);
+
+    expect(config.files.length).toBe(2);
+    expect(config.files[0].filePath).toBe("version1.txt");
+    expect(config.files[0].line).toBe(1);
+    expect(config.files[0].start).toBe(10);
+    expect(config.files[1].filePath).toBe("version2.txt");
+    expect(config.files[1].line).toBe(2);
 });
 
 test("testEmpty", () => {
@@ -93,6 +111,8 @@ test("testEmpty", () => {
     expect(config.branch.versionBranchPostfix).toBeUndefined();
     expect(config.branch.createMajorVersionBranch).toBe(Config.defaultCreateMajorVersionBranch);
     expect(config.branch.createMinorVersionBranch).toBe(Config.defaultCreateMinorVersionBranch);
+    expect(config.branch.bumpVersionCommitPrefix).toBeUndefined();
+    expect(config.branch.bumpVersionCommitPostfix).toBeUndefined();
 
     expect(config.categories.length).toBe(0);
 
@@ -103,6 +123,8 @@ test("testEmpty", () => {
     expect(config.bump.minor.commits.length).toBe(0);
     expect(config.bump.patch.labels.length).toBe(0);
     expect(config.bump.patch.commits.length).toBe(0);
+
+    expect(config.files.length).toBe(0);
 });
 
 const testEmptyCategoryTitle = `
@@ -127,6 +149,8 @@ test("testEmptyCategory", () => {
     expect(config.branch.versionBranchPostfix).toBeUndefined();
     expect(config.branch.createMajorVersionBranch).toBe(Config.defaultCreateMajorVersionBranch);
     expect(config.branch.createMinorVersionBranch).toBe(Config.defaultCreateMinorVersionBranch);
+    expect(config.branch.bumpVersionCommitPrefix).toBeUndefined();
+    expect(config.branch.bumpVersionCommitPostfix).toBeUndefined();
 
     expect(config.categories.length).toBe(1);
     expect(config.categories[0].title).toBe(Config.defaultCategoryTitle);
@@ -143,4 +167,6 @@ test("testEmptyCategory", () => {
     expect(config.bump.minor.commits.length).toBe(0);
     expect(config.bump.patch.labels.length).toBe(0);
     expect(config.bump.patch.commits.length).toBe(0);
+
+    expect(config.files.length).toBe(0);
 });
