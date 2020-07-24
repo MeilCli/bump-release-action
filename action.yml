@@ -28,6 +28,10 @@ inputs:
     description: 'how to bump version, value: major or minor or patch or empty string'
   dry_run:
     description: 'if true, not create and push this changes, and output release informations'
+  draft:
+    description: 'if true, create release as draft'
+  pre_release:
+    description: 'if true, create release as pre release'
 outputs:
   current_version:
     description: 'calculated current version'
