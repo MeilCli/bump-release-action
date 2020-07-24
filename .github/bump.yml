@@ -12,7 +12,7 @@ release:
     - replace-prefix: 'fix: '
       new-prefix: ''
     - replace-prefix: 'document: '
-      new-prefix: 'document '
+      new-prefix: ''
     - replace-prefix: 'dependency: '
       new-prefix: ''
 branch:
