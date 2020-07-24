@@ -2753,13 +2753,14 @@ var pull_request_1 = __webpack_require__(153);
 var calculate_1 = __webpack_require__(459);
 var version_1 = __webpack_require__(775);
 var git_1 = __webpack_require__(453);
+var file_1 = __webpack_require__(258);
 function run() {
     return __awaiter(this, void 0, void 0, function () {
-        var option, config, client, currentBranch, commits, latestRelease, index, commitAndPullRequests, changes, nextVersion, createdReleaseJson, error_1;
+        var option, config, client, currentBranch, commits, latestRelease, index, commitAndPullRequests, changes, currentVersion, nextVersion, hasChanges, createdReleaseJson, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 8, , 9]);
+                    _a.trys.push([0, 9, , 10]);
                     option = option_1.getOption();
                     config = config_1.getConfigFromFile(option.configPath);
                     client = github.getOctokit(option.githubToken);
@@ -2785,22 +2786,29 @@ function run() {
                 case 4:
                     commitAndPullRequests = _a.sent();
                     changes = calculate_1.calculateChanges(commitAndPullRequests);
+                    currentVersion = version_1.calculateCurrentVersion(config, latestRelease);
                     nextVersion = version_1.calculateNextVersion(option, config, latestRelease, changes);
-                    if (!(option.dryRun == false)) return [3 /*break*/, 6];
-                    return [4 /*yield*/, git_1.pushVersionBranch(option, config, nextVersion)];
+                    hasChanges = file_1.replaceVersions(option, config, nextVersion);
+                    if (!hasChanges) return [3 /*break*/, 6];
+                    return [4 /*yield*/, git_1.pushBaseBranch(option, config, nextVersion)];
                 case 5:
                     _a.sent();
                     _a.label = 6;
-                case 6: return [4 /*yield*/, release_1.createRelease(client, option, config, nextVersion, changes)];
+                case 6: return [4 /*yield*/, git_1.pushVersionBranch(option, config, nextVersion)];
                 case 7:
-                    createdReleaseJson = _a.sent();
-                    core.setOutput("release", createdReleaseJson);
-                    return [3 /*break*/, 9];
+                    _a.sent();
+                    return [4 /*yield*/, release_1.createRelease(client, option, config, nextVersion, changes)];
                 case 8:
+                    createdReleaseJson = _a.sent();
+                    core.setOutput("current_version", currentVersion);
+                    core.setOutput("next_version", nextVersion);
+                    core.setOutput("release", createdReleaseJson);
+                    return [3 /*break*/, 10];
+                case 9:
                     error_1 = _a.sent();
                     core.setFailed(error_1.message);
-                    return [3 /*break*/, 9];
-                case 9: return [2 /*return*/];
+                    return [3 /*break*/, 10];
+                case 10: return [2 /*return*/];
             }
         });
     });
@@ -2871,6 +2879,176 @@ module.exports = new Type('tag:yaml.org,2002:bool', {
   },
   defaultStyle: 'lowercase'
 });
+
+
+/***/ }),
+
+/***/ 258:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.splitLines = exports.replaceVersion = exports.replaceVersions = void 0;
+var fs = __importStar(__webpack_require__(747));
+var semver = __importStar(__webpack_require__(876));
+var core = __importStar(__webpack_require__(470));
+function replaceVersions(option, config, version) {
+    var contents = [];
+    var changed = false;
+    // read files
+    for (var _i = 0, _a = config.files; _i < _a.length; _i++) {
+        var file = _a[_i];
+        var text = fs.readFileSync(file.filePath).toString();
+        contents.push([file, text, ""]);
+    }
+    // replace versions
+    for (var _b = 0, contents_1 = contents; _b < contents_1.length; _b++) {
+        var content = contents_1[_b];
+        content[2] = replaceVersion(content[1], content[0].line, content[0].start, version);
+    }
+    // write or output content
+    for (var _c = 0, contents_2 = contents; _c < contents_2.length; _c++) {
+        var content = contents_2[_c];
+        if (option.dryRun) {
+            var diff = calculateDiff(content[1], content[2]);
+            if (diff == null) {
+                core.info("will not change " + content[0].filePath);
+            }
+            else {
+                core.info("will change " + content[0].filePath + ":" + diff[2]);
+                core.info("before: " + diff[0]);
+                core.info("after: " + diff[1]);
+            }
+        }
+        else {
+            var diff = calculateDiff(content[1], content[2]);
+            changed = changed || diff != null;
+            fs.writeFileSync(content[0].filePath, content[2]);
+        }
+    }
+    return changed;
+}
+exports.replaceVersions = replaceVersions;
+function replaceVersion(text, line, start, version) {
+    var lines = splitLines(text);
+    var result = [];
+    var replaced = false;
+    for (var i = 0; i < lines.length; i++) {
+        if (i % 2 == 1) {
+            // is lineBreak
+            result.push(lines[i]);
+            continue;
+        }
+        var lineNumber = i / 2 + 1;
+        if (lineNumber != line) {
+            result.push(lines[i]);
+            continue;
+        }
+        var searchStart = start !== null && start !== void 0 ? start : 0;
+        var searchText = lines[i].slice(searchStart, lines[i].length);
+        var match = searchText.match(/\d+\.\d+\.\d+/);
+        if (match == null) {
+            throw new Error("cannot find replace version, " + line + ":" + (start !== null && start !== void 0 ? start : 0) + " \n" + text);
+        }
+        var matchedVersion = match[0];
+        var matchedIndex = match.index;
+        if (matchedIndex == null) {
+            throw new Error("cannot find replace version index");
+        }
+        if (semver.lte(version, matchedVersion)) {
+            result.push(lines[i]);
+            replaced = true;
+            continue;
+        }
+        result.push(lines[i].slice(0, searchStart + matchedIndex) +
+            version +
+            lines[i].slice(searchStart + matchedIndex + matchedVersion.length, lines[i].length));
+        replaced = true;
+    }
+    if (replaced == false) {
+        throw new Error("did not replaced version");
+    }
+    return result.join("");
+}
+exports.replaceVersion = replaceVersion;
+function splitLines(text) {
+    var result = [];
+    for (var i = 0; i < text.length;) {
+        var _a = indexOfLine(text, i), index = _a[0], lineBreakSize = _a[1];
+        if (index < 0) {
+            var line_1 = text.slice(i, text.length);
+            result.push(line_1);
+            i += line_1.length;
+            continue;
+        }
+        var line = text.slice(i, index);
+        var lineBreak = text.slice(index, index + lineBreakSize);
+        result.push(line);
+        result.push(lineBreak);
+        i += line.length + lineBreak.length;
+    }
+    return result;
+}
+exports.splitLines = splitLines;
+// return [index, size]
+function indexOfLine(text, start) {
+    var rn = text.indexOf("\r\n", start);
+    var r = text.indexOf("\r", start);
+    var n = text.indexOf("\n", start);
+    var index = min(rn, r, n, 0);
+    if (index == rn) {
+        return [index, 2];
+    }
+    else {
+        return [index, 1];
+    }
+}
+function min(i1, i2, i3, lowerLimit) {
+    if (lowerLimit <= i2 && (i1 < lowerLimit || i2 < i1) && (i3 < lowerLimit || i2 < i3)) {
+        return i2;
+    }
+    if (lowerLimit <= i3 && (i1 < lowerLimit || i3 < i1) && (i2 < lowerLimit || i3 < i2)) {
+        return i3;
+    }
+    return i1;
+}
+function calculateDiff(text1, text2) {
+    var lines1 = splitLines(text1);
+    var lines2 = splitLines(text2);
+    if (lines1.length != lines2.length) {
+        throw new Error("not equal lines length");
+    }
+    for (var i = 0; i < lines1.length; i++) {
+        if (i % 2 == 1) {
+            continue;
+        }
+        var lineNumber = i / 2 + 1;
+        if (lines1[i] != lines2[i]) {
+            return [lines1[i], lines2[i], lineNumber];
+        }
+    }
+    return null;
+}
 
 
 /***/ }),
@@ -4251,7 +4429,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.pushVersionBranch = exports.checkoutBranch = exports.echoCurrentBranch = void 0;
+exports.pushVersionBranch = exports.pushBaseBranch = exports.checkoutBranch = exports.echoCurrentBranch = void 0;
 var exec = __importStar(__webpack_require__(986));
 var semver = __importStar(__webpack_require__(876));
 function echoCurrentBranch() {
@@ -4296,13 +4474,67 @@ function checkoutBranch(branch, create) {
     });
 }
 exports.checkoutBranch = checkoutBranch;
+function pushBaseBranch(option, config, version) {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function () {
+        var _i, _c, file, messagePrefix, messagePostfix, message, remote;
+        return __generator(this, function (_d) {
+            switch (_d.label) {
+                case 0:
+                    if (option.dryRun) {
+                        return [2 /*return*/];
+                    }
+                    return [4 /*yield*/, exec.exec("git config --local user.name " + option.commitUser)];
+                case 1:
+                    _d.sent();
+                    return [4 /*yield*/, exec.exec("git config --local user.email " + option.commitEmail)];
+                case 2:
+                    _d.sent();
+                    return [4 /*yield*/, checkoutBranch(config.branch.baseBranch, false)];
+                case 3:
+                    _d.sent();
+                    return [4 /*yield*/, exec.exec("git pull origin " + config.branch.baseBranch)];
+                case 4:
+                    _d.sent();
+                    _i = 0, _c = config.files;
+                    _d.label = 5;
+                case 5:
+                    if (!(_i < _c.length)) return [3 /*break*/, 8];
+                    file = _c[_i];
+                    return [4 /*yield*/, exec.exec("git add " + file.filePath)];
+                case 6:
+                    _d.sent();
+                    _d.label = 7;
+                case 7:
+                    _i++;
+                    return [3 /*break*/, 5];
+                case 8:
+                    messagePrefix = "" + ((_a = config.branch.bumpVersionCommitPrefix) !== null && _a !== void 0 ? _a : "");
+                    messagePostfix = "" + ((_b = config.branch.bumpVersionCommitPostfix) !== null && _b !== void 0 ? _b : "");
+                    message = "" + messagePrefix + version + messagePostfix;
+                    return [4 /*yield*/, exec.exec("git commit --no-edit -m " + message)];
+                case 9:
+                    _d.sent();
+                    remote = "https://x-access-token:" + option.githubToken + "@github.com/" + option.repository + ".git";
+                    return [4 /*yield*/, exec.exec("git push " + remote + " HEAD:" + config.branch.baseBranch)];
+                case 10:
+                    _d.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.pushBaseBranch = pushBaseBranch;
 function pushVersionBranch(option, config, version) {
     var _a, _b, _c, _d;
     return __awaiter(this, void 0, void 0, function () {
-        var remote, major, branch, has, major, minor, branch, has;
+        var remote, major, branchPrefix, branchPostfix, branch, has, major, minor, branchPrefix, branchPostfix, branch, has;
         return __generator(this, function (_e) {
             switch (_e.label) {
                 case 0:
+                    if (option.dryRun) {
+                        return [2 /*return*/];
+                    }
                     if (config.branch.createMajorVersionBranch == false && config.branch.createMinorVersionBranch == false) {
                         return [2 /*return*/];
                     }
@@ -4315,7 +4547,9 @@ function pushVersionBranch(option, config, version) {
                     remote = "https://x-access-token:" + option.githubToken + "@github.com/" + option.repository + ".git";
                     if (!config.branch.createMajorVersionBranch) return [3 /*break*/, 9];
                     major = semver.major(version);
-                    branch = "" + ((_a = config.branch.versionBranchPrefix) !== null && _a !== void 0 ? _a : "") + major + ((_b = config.branch.versionBranchPostfix) !== null && _b !== void 0 ? _b : "");
+                    branchPrefix = "" + ((_a = config.branch.versionBranchPrefix) !== null && _a !== void 0 ? _a : "");
+                    branchPostfix = "" + ((_b = config.branch.versionBranchPostfix) !== null && _b !== void 0 ? _b : "");
+                    branch = "" + branchPrefix + major + branchPostfix;
                     return [4 /*yield*/, hasBranch(branch)];
                 case 3:
                     has = _e.sent();
@@ -4339,7 +4573,9 @@ function pushVersionBranch(option, config, version) {
                     if (!config.branch.createMinorVersionBranch) return [3 /*break*/, 16];
                     major = semver.major(version);
                     minor = semver.minor(version);
-                    branch = "" + ((_c = config.branch.versionBranchPrefix) !== null && _c !== void 0 ? _c : "") + major + "." + minor + ((_d = config.branch.versionBranchPostfix) !== null && _d !== void 0 ? _d : "");
+                    branchPrefix = "" + ((_c = config.branch.versionBranchPrefix) !== null && _c !== void 0 ? _c : "");
+                    branchPostfix = "" + ((_d = config.branch.versionBranchPostfix) !== null && _d !== void 0 ? _d : "");
+                    branch = "" + branchPrefix + major + "." + minor + branchPostfix;
                     return [4 /*yield*/, hasBranch(branch)];
                 case 10:
                     has = _e.sent();
@@ -8236,7 +8472,7 @@ function getConfigFromFile(filePath) {
 }
 exports.getConfigFromFile = getConfigFromFile;
 function getConfigFromYaml(text) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17;
     var root = yaml.load(text);
     var release = {
         titlePrefix: (_a = root === null || root === void 0 ? void 0 : root.release) === null || _a === void 0 ? void 0 : _a["title-prefix"],
@@ -8253,37 +8489,39 @@ function getConfigFromYaml(text) {
         versionBranchPostfix: (_p = root === null || root === void 0 ? void 0 : root.branch) === null || _p === void 0 ? void 0 : _p["version-branch-postfix"],
         createMajorVersionBranch: (_r = (_q = root === null || root === void 0 ? void 0 : root.branch) === null || _q === void 0 ? void 0 : _q["create-major-version-branch"]) !== null && _r !== void 0 ? _r : exports.defaultCreateMajorVersionBranch,
         createMinorVersionBranch: (_t = (_s = root === null || root === void 0 ? void 0 : root.branch) === null || _s === void 0 ? void 0 : _s["create-minor-version-branch"]) !== null && _t !== void 0 ? _t : exports.defaultCreateMinorVersionBranch,
+        bumpVersionCommitPrefix: (_u = root === null || root === void 0 ? void 0 : root.branch) === null || _u === void 0 ? void 0 : _u["bump-version-commit-prefix"],
+        bumpVersionCommitPostfix: (_v = root === null || root === void 0 ? void 0 : root.branch) === null || _v === void 0 ? void 0 : _v["bump-version-commit-postfix"],
     };
     var categories = [];
     if ((root === null || root === void 0 ? void 0 : root.categories) != undefined) {
-        for (var _i = 0, _16 = root.categories; _i < _16.length; _i++) {
-            var category = _16[_i];
+        for (var _i = 0, _18 = root.categories; _i < _18.length; _i++) {
+            var category = _18[_i];
             categories.push({
-                title: (_u = category.title) !== null && _u !== void 0 ? _u : exports.defaultCategoryTitle,
-                labels: (_v = category.labels) !== null && _v !== void 0 ? _v : [],
+                title: (_w = category.title) !== null && _w !== void 0 ? _w : exports.defaultCategoryTitle,
+                labels: (_x = category.labels) !== null && _x !== void 0 ? _x : [],
                 skipLabel: category["skip-label"],
-                commits: (_w = category.commits) !== null && _w !== void 0 ? _w : [],
+                commits: (_y = category.commits) !== null && _y !== void 0 ? _y : [],
                 changesPrefix: category["changes-prefix"],
                 changesPostfix: category["changes-postfix"],
             });
         }
     }
     var major = {
-        labels: (_z = (_y = (_x = root === null || root === void 0 ? void 0 : root.bump) === null || _x === void 0 ? void 0 : _x.major) === null || _y === void 0 ? void 0 : _y.labels) !== null && _z !== void 0 ? _z : [],
-        commits: (_2 = (_1 = (_0 = root === null || root === void 0 ? void 0 : root.bump) === null || _0 === void 0 ? void 0 : _0.major) === null || _1 === void 0 ? void 0 : _1.commits) !== null && _2 !== void 0 ? _2 : [],
+        labels: (_1 = (_0 = (_z = root === null || root === void 0 ? void 0 : root.bump) === null || _z === void 0 ? void 0 : _z.major) === null || _0 === void 0 ? void 0 : _0.labels) !== null && _1 !== void 0 ? _1 : [],
+        commits: (_4 = (_3 = (_2 = root === null || root === void 0 ? void 0 : root.bump) === null || _2 === void 0 ? void 0 : _2.major) === null || _3 === void 0 ? void 0 : _3.commits) !== null && _4 !== void 0 ? _4 : [],
     };
     var minor = {
-        labels: (_5 = (_4 = (_3 = root === null || root === void 0 ? void 0 : root.bump) === null || _3 === void 0 ? void 0 : _3.minor) === null || _4 === void 0 ? void 0 : _4.labels) !== null && _5 !== void 0 ? _5 : [],
-        commits: (_8 = (_7 = (_6 = root === null || root === void 0 ? void 0 : root.bump) === null || _6 === void 0 ? void 0 : _6.minor) === null || _7 === void 0 ? void 0 : _7.commits) !== null && _8 !== void 0 ? _8 : [],
+        labels: (_7 = (_6 = (_5 = root === null || root === void 0 ? void 0 : root.bump) === null || _5 === void 0 ? void 0 : _5.minor) === null || _6 === void 0 ? void 0 : _6.labels) !== null && _7 !== void 0 ? _7 : [],
+        commits: (_10 = (_9 = (_8 = root === null || root === void 0 ? void 0 : root.bump) === null || _8 === void 0 ? void 0 : _8.minor) === null || _9 === void 0 ? void 0 : _9.commits) !== null && _10 !== void 0 ? _10 : [],
     };
     var patch = {
-        labels: (_11 = (_10 = (_9 = root === null || root === void 0 ? void 0 : root.bump) === null || _9 === void 0 ? void 0 : _9.patch) === null || _10 === void 0 ? void 0 : _10.labels) !== null && _11 !== void 0 ? _11 : [],
-        commits: (_14 = (_13 = (_12 = root === null || root === void 0 ? void 0 : root.bump) === null || _12 === void 0 ? void 0 : _12.patch) === null || _13 === void 0 ? void 0 : _13.commits) !== null && _14 !== void 0 ? _14 : [],
+        labels: (_13 = (_12 = (_11 = root === null || root === void 0 ? void 0 : root.bump) === null || _11 === void 0 ? void 0 : _11.patch) === null || _12 === void 0 ? void 0 : _12.labels) !== null && _13 !== void 0 ? _13 : [],
+        commits: (_16 = (_15 = (_14 = root === null || root === void 0 ? void 0 : root.bump) === null || _14 === void 0 ? void 0 : _14.patch) === null || _15 === void 0 ? void 0 : _15.commits) !== null && _16 !== void 0 ? _16 : [],
     };
     var bumpDefault = exports.defaultBump;
-    for (var _17 = 0, versionList_1 = version_1.versionList; _17 < versionList_1.length; _17++) {
-        var version = versionList_1[_17];
-        if (version == ((_15 = root === null || root === void 0 ? void 0 : root.bump) === null || _15 === void 0 ? void 0 : _15.default)) {
+    for (var _19 = 0, versionList_1 = version_1.versionList; _19 < versionList_1.length; _19++) {
+        var version = versionList_1[_19];
+        if (version == ((_17 = root === null || root === void 0 ? void 0 : root.bump) === null || _17 === void 0 ? void 0 : _17.default)) {
             bumpDefault = version;
             break;
         }
@@ -8294,11 +8532,26 @@ function getConfigFromYaml(text) {
         minor: minor,
         patch: patch,
     };
+    var files = [];
+    if ((root === null || root === void 0 ? void 0 : root.files) != undefined) {
+        for (var _20 = 0, _21 = root.files; _20 < _21.length; _20++) {
+            var file = _21[_20];
+            if (file["file-path"] == undefined || file.line == undefined) {
+                continue;
+            }
+            files.push({
+                filePath: file["file-path"],
+                line: file.line,
+                start: file.start,
+            });
+        }
+    }
     return {
         release: release,
         branch: branch,
         categories: categories,
         bump: bump,
+        files: files,
     };
 }
 exports.getConfigFromYaml = getConfigFromYaml;
@@ -11707,14 +11960,18 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cleanTagName = exports.calculateNextVersion = exports.versionList = void 0;
+exports.cleanTagName = exports.calculateNextVersion = exports.calculateCurrentVersion = exports.versionList = void 0;
 var semver = __importStar(__webpack_require__(876));
 exports.versionList = ["major", "minor", "patch"];
-function calculateNextVersion(option, config, release, changes) {
+function calculateCurrentVersion(config, release) {
     if (release == null) {
         return config.release.initialVersion;
     }
-    var currentVersion = cleanTagName(config, release.tagName);
+    return cleanTagName(config, release.tagName);
+}
+exports.calculateCurrentVersion = calculateCurrentVersion;
+function calculateNextVersion(option, config, release, changes) {
+    var currentVersion = calculateCurrentVersion(config, release);
     var major = semver.major(currentVersion);
     var minor = semver.minor(currentVersion);
     var patch = semver.patch(currentVersion);
