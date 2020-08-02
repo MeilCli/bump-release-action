@@ -115,9 +115,14 @@ function createChanges(changes: Array<string | string[]>): Changes[] {
 
 test("testCleanTagName", () => {
     expect(cleanTagName(createConfig(undefined, undefined), "v2.1.0")).toBe("2.1.0");
+    expect(cleanTagName(createConfig(undefined, undefined), "v2.1")).toBe("2.1.0");
+    expect(cleanTagName(createConfig(undefined, undefined), "v2")).toBe("2.0.0");
     expect(cleanTagName(createConfig("release-", undefined), "release-2.1.0")).toBe("2.1.0");
     expect(cleanTagName(createConfig(undefined, "-stable"), "v2.1.0-stable")).toBe("2.1.0");
     expect(cleanTagName(createConfig("release-", "-stable"), "release-2.1.0-stable")).toBe("2.1.0");
+    expect(() => cleanTagName(createConfig(undefined, undefined), "v.0")).toThrowError(/.+/);
+    expect(() => cleanTagName(createConfig(undefined, undefined), "v1.")).toThrowError(/.+/);
+    expect(() => cleanTagName(createConfig(undefined, undefined), "v")).toThrowError(/.+/);
 });
 
 test("calculateNextVersion", () => {
