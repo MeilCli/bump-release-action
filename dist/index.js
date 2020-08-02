@@ -12132,13 +12132,64 @@ function cleanTagName(config, tagName) {
     if (config.release.tagPostfix != null && result.endsWith(config.release.tagPostfix)) {
         result = result.slice(0, result.length - config.release.tagPostfix.length);
     }
-    var resultOrNull = semver.clean(result);
+    var resultOrNull = looseClean(result);
     if (resultOrNull == null) {
         throw new Error("unresolve tag: " + tagName);
     }
     return resultOrNull;
 }
 exports.cleanTagName = cleanTagName;
+function looseClean(version) {
+    var semverResult = semver.clean(version);
+    if (semverResult != null) {
+        return semverResult;
+    }
+    var numberOrDotValue = "";
+    for (var i = 0; i < version.length; i++) {
+        var char = version.charAt(i);
+        if (isDigit(char) || char == ".") {
+            numberOrDotValue += char;
+        }
+    }
+    if (numberOrDotValue.length == 0) {
+        return null;
+    }
+    var splitedVersion = numberOrDotValue.split(".");
+    if (splitedVersion.find(function (x) { return x.length == 0; }) != undefined) {
+        return null;
+    }
+    var dotCount = splitedVersion.length - 1;
+    if (dotCount == 0) {
+        return numberOrDotValue + ".0.0";
+    }
+    if (dotCount == 1) {
+        return numberOrDotValue + ".0";
+    }
+    if (dotCount == 2) {
+        return numberOrDotValue;
+    }
+    return null;
+}
+function isDigit(value) {
+    if (value.length != 1) {
+        return false;
+    }
+    switch (value) {
+        case "0":
+        case "1":
+        case "2":
+        case "3":
+        case "4":
+        case "5":
+        case "6":
+        case "7":
+        case "8":
+        case "9":
+            return true;
+        default:
+            return false;
+    }
+}
 
 
 /***/ }),
