@@ -12034,6 +12034,10 @@ function calculateCurrentVersion(config, release) {
 exports.calculateCurrentVersion = calculateCurrentVersion;
 function calculateNextVersion(option, config, release, changes) {
     var currentVersion = calculateCurrentVersion(config, release);
+    if (release == null) {
+        // initial release
+        return currentVersion;
+    }
     var major = semver.major(currentVersion);
     var minor = semver.minor(currentVersion);
     var patch = semver.patch(currentVersion);
