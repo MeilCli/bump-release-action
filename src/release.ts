@@ -19,21 +19,25 @@ export interface Release {
 }
 
 export async function getLatestRelease(client: InstanceType<typeof GitHub>, option: Option): Promise<Release | null> {
-    const owner = option.repository.split("/")[0];
-    const repository = option.repository.split("/")[1];
-    const response = await client.repos.getLatestRelease({ owner: owner, repo: repository });
-    if (400 <= response.status) {
+    try {
+        const owner = option.repository.split("/")[0];
+        const repository = option.repository.split("/")[1];
+        const response = await client.repos.getLatestRelease({ owner: owner, repo: repository });
+        if (400 <= response.status) {
+            return null;
+        }
+        const tagName = response.data.tag_name;
+        const commitSha = await getTagCommitSha(client, owner, repository, tagName);
+        if (commitSha == null) {
+            return null;
+        }
+        return {
+            tagName,
+            commitSha,
+        };
+    } catch (error) {
         return null;
     }
-    const tagName = response.data.tag_name;
-    const commitSha = await getTagCommitSha(client, owner, repository, tagName);
-    if (commitSha == null) {
-        return null;
-    }
-    return {
-        tagName,
-        commitSha,
-    };
 }
 
 async function getTagCommitSha(
