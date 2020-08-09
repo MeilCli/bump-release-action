@@ -12465,10 +12465,11 @@ exports.releaseSortByList = ["note", "commit_at"];
 exports.releaseSortDirectionList = ["ascending", "descending"];
 function getLatestRelease(client, option) {
     return __awaiter(this, void 0, void 0, function () {
-        var owner, repository, response, tagName, commitSha;
+        var owner, repository, response, tagName, commitSha, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
+                    _a.trys.push([0, 3, , 4]);
                     owner = option.repository.split("/")[0];
                     repository = option.repository.split("/")[1];
                     return [4 /*yield*/, client.repos.getLatestRelease({ owner: owner, repo: repository })];
@@ -12488,6 +12489,10 @@ function getLatestRelease(client, option) {
                             tagName: tagName,
                             commitSha: commitSha,
                         }];
+                case 3:
+                    error_1 = _a.sent();
+                    return [2 /*return*/, null];
+                case 4: return [2 /*return*/];
             }
         });
     });
