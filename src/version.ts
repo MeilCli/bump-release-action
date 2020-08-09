@@ -24,6 +24,10 @@ export function calculateNextVersion(
     changes: Changes[]
 ): string {
     const currentVersion = calculateCurrentVersion(config, release);
+    if (release == null) {
+        // initial release
+        return currentVersion;
+    }
     let major = semver.major(currentVersion);
     let minor = semver.minor(currentVersion);
     let patch = semver.patch(currentVersion);
