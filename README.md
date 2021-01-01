@@ -371,6 +371,9 @@ This configuration is array value, if provide configuration, commit version up a
 ## Attention
 Currently, cannot publish action to Marketplace using API. So, if you publish action to Marketplace, open release that published by this action, click edit release, and click update release button. If you are using a version branch, it is enough to do it only when the version branch changes or when the README is updated.
 
+## Contributing
+see [Contributing.md](./.github/CONTRIBUTING.md)
+
 ## License
 MIT License
 
