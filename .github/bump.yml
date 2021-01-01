@@ -68,8 +68,3 @@ bump:
       - 'Feature'
     commits:
       - 'feature:'
-files:
-  - file-path: 'package.json'
-    line: 3
-  - file-path: 'package-lock.json'
-    line: 3
