@@ -1446,8 +1446,8 @@ function aggregateReleaseNotes(option, config, categories) {
             releaseNoteRoot = findReleaseNoteRoot;
         }
         var changes = category[1];
-        for (var _i = 0, changes_2 = changes; _i < changes_2.length; _i++) {
-            var change = changes_2[_i];
+        for (var _c = 0, changes_2 = changes; _c < changes_2.length; _c++) {
+            var change = changes_2[_c];
             var releaseNotePrefix = (_a = category[0].changesPrefix) !== null && _a !== void 0 ? _a : "";
             var releaseNotePostfix = (_b = category[0].changesPostfix) !== null && _b !== void 0 ? _b : "";
             releaseNoteRoot[1].push([
