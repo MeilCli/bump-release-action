@@ -25,7 +25,7 @@ async function run() {
         const latestRelease = await getLatestRelease(client, option);
         if (latestRelease != null) {
             const index = commits.map((x) => x.sha).indexOf(latestRelease.commitSha);
-            if (0 < index) {
+            if (0 <= index) {
                 commits = commits.slice(0, index);
             }
         }
