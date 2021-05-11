@@ -153,6 +153,14 @@ test("calculateNextVersion", () => {
             createChanges([])
         )
     ).toBe("3.0.0");
+    expect(
+        calculateNextVersion(
+            createOption(null),
+            createConfig(undefined, undefined),
+            createRelease("v2.1.1"),
+            createChanges([])
+        )
+    ).toBe("2.1.2");
 
     /**
      * prefix and postfix
