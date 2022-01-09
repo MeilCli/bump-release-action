@@ -22,7 +22,7 @@ export async function getLatestRelease(client: InstanceType<typeof GitHub>, opti
     try {
         const owner = option.repository.split("/")[0];
         const repository = option.repository.split("/")[1];
-        const response = await client.repos.getLatestRelease({ owner: owner, repo: repository });
+        const response = await client.rest.repos.getLatestRelease({ owner: owner, repo: repository });
         if (400 <= response.status) {
             return null;
         }
@@ -46,7 +46,7 @@ async function getTagCommitSha(
     repository: string,
     tagName: string
 ): Promise<string | null> {
-    const response = await client.git.getRef({ owner: owner, repo: repository, ref: `tags/${tagName}` });
+    const response = await client.rest.git.getRef({ owner: owner, repo: repository, ref: `tags/${tagName}` });
     if (400 <= response.status) {
         return null;
     }
@@ -76,7 +76,7 @@ export async function createRelease(
         core.info(body);
         return "";
     }
-    const response = await client.repos.createRelease({
+    const response = await client.rest.repos.createRelease({
         owner: owner,
         repo: repository,
         name: title,

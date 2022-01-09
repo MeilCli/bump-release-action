@@ -54,7 +54,9 @@ async function run() {
         core.setOutput("next_version", nextVersion);
         core.setOutput("release", createdReleaseJson);
     } catch (error) {
-        core.setFailed(error.message);
+        if (error instanceof Error) {
+            core.setFailed(error.message);
+        }
     }
 }
 

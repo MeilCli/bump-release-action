@@ -25,9 +25,8 @@ declare type PullsListResponseData = {
         login: string;
     };
     labels: {
-        name: string;
+        name?: string;
     }[];
-    merged_at: string | null;
     merge_commit_sha: string;
 };
 
@@ -53,13 +52,13 @@ export async function listPullRequests(
             number: data.number,
             title: data.title,
             user: data.user,
-            labels: data.labels,
+            labels: data.labels.filter((x) => x.name != undefined) as { name: string }[],
             mergeCommitSha: data.merge_commit_sha,
             commits: commits,
         };
     };
     const get: (page: number) => Promise<PullRequest[]> = async (page) => {
-        const response = await client.pulls.list({
+        const response = await client.rest.pulls.list({
             owner: owner,
             repo: repository,
             state: "closed",
@@ -78,7 +77,25 @@ export async function listPullRequests(
             if (data.merged_at == null) {
                 continue;
             }
-            result.push(selector(data, await listCommits(client, owner, repository, data.number)));
+            if (data.merge_commit_sha == null) {
+                continue;
+            }
+            if (data.user == null) {
+                continue;
+            }
+            result.push(
+                selector(
+                    {
+                        html_url: data.html_url,
+                        number: data.number,
+                        title: data.title,
+                        user: data.user,
+                        labels: data.labels,
+                        merge_commit_sha: data.merge_commit_sha,
+                    },
+                    await listCommits(client, owner, repository, data.number)
+                )
+            );
         }
         return result;
     };
@@ -136,7 +153,7 @@ async function listCommits(
         };
     };
     const get: (page: number) => Promise<Commit[]> = async (page) => {
-        const response = await client.pulls.listCommits({
+        const response = await client.rest.pulls.listCommits({
             owner: owner,
             repo: repository,
             pull_number: number,
