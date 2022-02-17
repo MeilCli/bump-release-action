@@ -340,40 +340,46 @@ var fs = __importStar(__nccwpck_require__(7147));
 var semver = __importStar(__nccwpck_require__(1383));
 var core = __importStar(__nccwpck_require__(2186));
 function replaceVersions(option, config, version) {
+    // [config, raw file, calculated file]
     var contents = [];
     var changed = false;
     // read files
     for (var _i = 0, _a = config.files; _i < _a.length; _i++) {
         var file = _a[_i];
         var text = fs.readFileSync(file.filePath).toString();
-        contents.push([file, text, ""]);
+        contents.push([file, text, text]);
     }
     // replace versions
     for (var _b = 0, contents_1 = contents; _b < contents_1.length; _b++) {
         var content = contents_1[_b];
-        content[2] = replaceVersion(content[1], content[0].line, content[0].start, version);
+        content[2] = replaceVersion(content[2], content[0].line, content[0].start, version);
     }
     // write or output content
     if (option.dryRun) {
         core.info("");
         core.info("--- Dry Run Change Version ---");
     }
+    var shownDryRunDiffPaths = [];
     for (var _c = 0, contents_2 = contents; _c < contents_2.length; _c++) {
         var content = contents_2[_c];
         if (option.dryRun) {
-            var diff = calculateDiff(content[1], content[2]);
-            if (diff == null) {
+            var diffs = calculateDiff(content[1], content[2]);
+            if (diffs.length == 0) {
                 core.info("will not change ".concat(content[0].filePath));
             }
-            else {
-                core.info("will change ".concat(content[0].filePath, ":").concat(diff[2]));
-                core.info("before: ".concat(diff[0]));
-                core.info("after: ".concat(diff[1]));
+            else if (shownDryRunDiffPaths.includes(content[0].filePath) == false) {
+                for (var _d = 0, diffs_1 = diffs; _d < diffs_1.length; _d++) {
+                    var diff = diffs_1[_d];
+                    core.info("will change ".concat(content[0].filePath, ":").concat(diff[2]));
+                    core.info("before: ".concat(diff[0]));
+                    core.info("after: ".concat(diff[1]));
+                }
+                shownDryRunDiffPaths.push(content[0].filePath);
             }
         }
         else {
             var diff = calculateDiff(content[1], content[2]);
-            changed = changed || diff != null;
+            changed = changed || diff.length != 0;
             fs.writeFileSync(content[0].filePath, content[2]);
         }
     }
@@ -469,16 +475,17 @@ function calculateDiff(text1, text2) {
     if (lines1.length != lines2.length) {
         throw new Error("not equal lines length");
     }
+    var result = [];
     for (var i = 0; i < lines1.length; i++) {
         if (i % 2 == 1) {
             continue;
         }
         var lineNumber = i / 2 + 1;
         if (lines1[i] != lines2[i]) {
-            return [lines1[i], lines2[i], lineNumber];
+            result.push([lines1[i], lines2[i], lineNumber]);
         }
     }
-    return null;
+    return result;
 }
 
 
