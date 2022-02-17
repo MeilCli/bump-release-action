@@ -2,22 +2,28 @@ import * as fs from "fs";
 import * as semver from "semver";
 import * as core from "@actions/core";
 import { Option } from "./option";
-import { Config, ConfigFile } from "./config";
+import { Config } from "./config";
 
 export function replaceVersions(option: Option, config: Config, version: string): boolean {
-    // [config, raw file, calculated file]
-    const contents: [ConfigFile, string, string][] = [];
     let changed = false;
+
+    // <file path, [raw file, calculated file]>
+    const files = new Map<string, [string, string]>();
 
     // read files
     for (const file of config.files) {
         const text = fs.readFileSync(file.filePath).toString();
-        contents.push([file, text, text]);
+        files.set(file.filePath, [text, text]);
     }
 
     // replace versions
-    for (const content of contents) {
-        content[2] = replaceVersion(content[2], content[0].line, content[0].start, version);
+    for (const file of config.files) {
+        const texts = files.get(file.filePath);
+        if (texts == undefined) {
+            continue;
+        }
+        const newText = replaceVersion(texts[1], file.line, file.start, version);
+        files.set(file.filePath, [texts[0], newText]);
     }
 
     // write or output content
@@ -25,24 +31,31 @@ export function replaceVersions(option: Option, config: Config, version: string)
         core.info("");
         core.info("--- Dry Run Change Version ---");
     }
-    const shownDryRunDiffPaths: string[] = [];
-    for (const content of contents) {
+
+    const filePaths: string[] = [];
+    files.forEach((_, key) => {
+        filePaths.push(key);
+    });
+    for (const filePath of filePaths) {
+        const texts = files.get(filePath);
+        if (texts == undefined) {
+            continue;
+        }
         if (option.dryRun) {
-            const diffs = calculateDiff(content[1], content[2]);
+            const diffs = calculateDiff(texts[0], texts[1]);
             if (diffs.length == 0) {
-                core.info(`will not change ${content[0].filePath}`);
-            } else if (shownDryRunDiffPaths.includes(content[0].filePath) == false) {
+                core.info(`will not change ${filePath}`);
+            } else {
                 for (const diff of diffs) {
-                    core.info(`will change ${content[0].filePath}:${diff[2]}`);
+                    core.info(`will change ${filePath}:${diff[2]}`);
                     core.info(`before: ${diff[0]}`);
                     core.info(`after: ${diff[1]}`);
                 }
-                shownDryRunDiffPaths.push(content[0].filePath);
             }
         } else {
-            const diff = calculateDiff(content[1], content[2]);
+            const diff = calculateDiff(texts[0], texts[1]);
             changed = changed || diff.length != 0;
-            fs.writeFileSync(content[0].filePath, content[2]);
+            fs.writeFileSync(filePath, texts[1]);
         }
     }
 
