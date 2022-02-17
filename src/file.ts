@@ -5,18 +5,19 @@ import { Option } from "./option";
 import { Config, ConfigFile } from "./config";
 
 export function replaceVersions(option: Option, config: Config, version: string): boolean {
+    // [config, raw file, calculated file]
     const contents: [ConfigFile, string, string][] = [];
     let changed = false;
 
     // read files
     for (const file of config.files) {
         const text = fs.readFileSync(file.filePath).toString();
-        contents.push([file, text, ""]);
+        contents.push([file, text, text]);
     }
 
     // replace versions
     for (const content of contents) {
-        content[2] = replaceVersion(content[1], content[0].line, content[0].start, version);
+        content[2] = replaceVersion(content[2], content[0].line, content[0].start, version);
     }
 
     // write or output content
