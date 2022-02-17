@@ -25,19 +25,23 @@ export function replaceVersions(option: Option, config: Config, version: string)
         core.info("");
         core.info("--- Dry Run Change Version ---");
     }
+    const shownDryRunDiffPaths: string[] = [];
     for (const content of contents) {
         if (option.dryRun) {
-            const diff = calculateDiff(content[1], content[2]);
-            if (diff == null) {
+            const diffs = calculateDiff(content[1], content[2]);
+            if (diffs.length == 0) {
                 core.info(`will not change ${content[0].filePath}`);
-            } else {
-                core.info(`will change ${content[0].filePath}:${diff[2]}`);
-                core.info(`before: ${diff[0]}`);
-                core.info(`after: ${diff[1]}`);
+            } else if (shownDryRunDiffPaths.includes(content[0].filePath) == false) {
+                for (const diff of diffs) {
+                    core.info(`will change ${content[0].filePath}:${diff[2]}`);
+                    core.info(`before: ${diff[0]}`);
+                    core.info(`after: ${diff[1]}`);
+                }
+                shownDryRunDiffPaths.push(content[0].filePath);
             }
         } else {
             const diff = calculateDiff(content[1], content[2]);
-            changed = changed || diff != null;
+            changed = changed || diff.length != 0;
             fs.writeFileSync(content[0].filePath, content[2]);
         }
     }
@@ -136,13 +140,14 @@ function min(i1: number, i2: number, i3: number, lowerLimit: number): number {
     return i1;
 }
 
-function calculateDiff(text1: string, text2: string): [string, string, number] | null {
+function calculateDiff(text1: string, text2: string): [string, string, number][] {
     const lines1 = splitLines(text1);
     const lines2 = splitLines(text2);
     if (lines1.length != lines2.length) {
         throw new Error("not equal lines length");
     }
 
+    const result: [string, string, number][] = [];
     for (let i = 0; i < lines1.length; i++) {
         if (i % 2 == 1) {
             continue;
@@ -150,9 +155,9 @@ function calculateDiff(text1: string, text2: string): [string, string, number] |
         const lineNumber = i / 2 + 1;
 
         if (lines1[i] != lines2[i]) {
-            return [lines1[i], lines2[i], lineNumber];
+            result.push([lines1[i], lines2[i], lineNumber]);
         }
     }
 
-    return null;
+    return result;
 }
