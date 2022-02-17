@@ -340,47 +340,58 @@ var fs = __importStar(__nccwpck_require__(7147));
 var semver = __importStar(__nccwpck_require__(1383));
 var core = __importStar(__nccwpck_require__(2186));
 function replaceVersions(option, config, version) {
-    // [config, raw file, calculated file]
-    var contents = [];
     var changed = false;
+    // <file path, [raw file, calculated file]>
+    var files = new Map();
     // read files
     for (var _i = 0, _a = config.files; _i < _a.length; _i++) {
         var file = _a[_i];
         var text = fs.readFileSync(file.filePath).toString();
-        contents.push([file, text, text]);
+        files.set(file.filePath, [text, text]);
     }
     // replace versions
-    for (var _b = 0, contents_1 = contents; _b < contents_1.length; _b++) {
-        var content = contents_1[_b];
-        content[2] = replaceVersion(content[2], content[0].line, content[0].start, version);
+    for (var _b = 0, _c = config.files; _b < _c.length; _b++) {
+        var file = _c[_b];
+        var texts = files.get(file.filePath);
+        if (texts == undefined) {
+            continue;
+        }
+        var newText = replaceVersion(texts[1], file.line, file.start, version);
+        files.set(file.filePath, [texts[0], newText]);
     }
     // write or output content
     if (option.dryRun) {
         core.info("");
         core.info("--- Dry Run Change Version ---");
     }
-    var shownDryRunDiffPaths = [];
-    for (var _c = 0, contents_2 = contents; _c < contents_2.length; _c++) {
-        var content = contents_2[_c];
+    var filePaths = [];
+    files.forEach(function (_, key) {
+        filePaths.push(key);
+    });
+    for (var _d = 0, filePaths_1 = filePaths; _d < filePaths_1.length; _d++) {
+        var filePath = filePaths_1[_d];
+        var texts = files.get(filePath);
+        if (texts == undefined) {
+            continue;
+        }
         if (option.dryRun) {
-            var diffs = calculateDiff(content[1], content[2]);
+            var diffs = calculateDiff(texts[0], texts[1]);
             if (diffs.length == 0) {
-                core.info("will not change ".concat(content[0].filePath));
+                core.info("will not change ".concat(filePath));
             }
-            else if (shownDryRunDiffPaths.includes(content[0].filePath) == false) {
-                for (var _d = 0, diffs_1 = diffs; _d < diffs_1.length; _d++) {
-                    var diff = diffs_1[_d];
-                    core.info("will change ".concat(content[0].filePath, ":").concat(diff[2]));
+            else {
+                for (var _e = 0, diffs_1 = diffs; _e < diffs_1.length; _e++) {
+                    var diff = diffs_1[_e];
+                    core.info("will change ".concat(filePath, ":").concat(diff[2]));
                     core.info("before: ".concat(diff[0]));
                     core.info("after: ".concat(diff[1]));
                 }
-                shownDryRunDiffPaths.push(content[0].filePath);
             }
         }
         else {
-            var diff = calculateDiff(content[1], content[2]);
+            var diff = calculateDiff(texts[0], texts[1]);
             changed = changed || diff.length != 0;
-            fs.writeFileSync(content[0].filePath, content[2]);
+            fs.writeFileSync(filePath, texts[1]);
         }
     }
     return changed;
