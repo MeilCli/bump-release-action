@@ -4,7 +4,7 @@ import { Version, versionList } from "./version";
 import { ReleaseSortBy, ReleaseSortDirection, releaseSortByList, releaseSortDirectionList } from "./release";
 
 export const defaultBodyTitle = "What's Changed";
-export const defaultBodyWhenEmptyChanges = "This release has not changes";
+export const defaultBodyWhenEmptyChanges = "This release has no changes";
 export const defaultInitialVersion = "1.0.0";
 export const defaultSortBy = "commit_at";
 export const defaultSortDirection = "descending";
