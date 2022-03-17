@@ -1,3 +1,4 @@
+import { Config } from "./config";
 import { PullRequest } from "./pull_request";
 import { Commit } from "./commit";
 
@@ -7,7 +8,7 @@ export interface Changes {
     value: Commit | PullRequest;
 }
 
-export function calculateChanges(commitAndPullRequests: [Commit, PullRequest | null][]): Changes[] {
+export function calculateChanges(config: Config, commitAndPullRequests: [Commit, PullRequest | null][]): Changes[] {
     const result: Changes[] = [];
     const skipCommitShas: string[] = [];
 
@@ -21,10 +22,20 @@ export function calculateChanges(commitAndPullRequests: [Commit, PullRequest | n
             for (const commit of commitAndPullRequest[1].commits) {
                 skipCommitShas.push(commit.sha);
             }
-            continue;
+            if (
+                config.release.pullRequestCommit == "exclude" ||
+                config.release.pullRequestCommit == "include_branch_commit_only"
+            ) {
+                continue;
+            }
         }
         if (0 <= skipCommitShas.indexOf(commitAndPullRequest[0].sha)) {
-            continue;
+            if (
+                config.release.pullRequestCommit == "exclude" ||
+                config.release.pullRequestCommit == "include_merge_commit_only"
+            ) {
+                continue;
+            }
         }
         result.push({ type: "commit", unixTime: commitAndPullRequest[0].unixTime, value: commitAndPullRequest[0] });
     }

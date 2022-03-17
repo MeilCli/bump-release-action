@@ -16,6 +16,7 @@ release:
       new-prefix: 'feature '
     - replace-prefix: 'document: '
       new-prefix: 'document '
+  pull-request-commit: 'include_merge_commit_only'
 branch:
   base-branch: 'develop'
   version-branch-prefix: 'v'
@@ -71,6 +72,7 @@ test("testFull", () => {
     expect(config.release.tagPostfix).toBe("-stable");
     expect(config.release.sortBy).toBe("note");
     expect(config.release.sortDirection).toBe("ascending");
+    expect(config.release.pullRequestCommit).toBe("include_merge_commit_only");
 
     expect(config.release.commitNoteReplacers.length).toBe(2);
     expect(config.release.commitNoteReplacers[0].replacePrefix).toBe("feature: ");

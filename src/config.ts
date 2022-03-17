@@ -33,7 +33,14 @@ export interface ConfigRelease {
     sortBy: ReleaseSortBy;
     sortDirection: ReleaseSortDirection;
     commitNoteReplacers: ConfigReleaseCommitNoteReplacer[];
+    pullRequestCommit: ConfigReleasePullRequestCommit;
 }
+
+export type ConfigReleasePullRequestCommit =
+    | "exclude"
+    | "include"
+    | "include_merge_commit_only"
+    | "include_branch_commit_only";
 
 export interface ConfigReleaseCommitNoteReplacer {
     replacePrefix: string;
@@ -96,6 +103,7 @@ interface YamlRelease {
     "sort-by": string | undefined;
     "sort-direction": string | undefined;
     "commit-note-replacers": YamlReleaseCommitNoteReplacer[] | undefined;
+    "pull-request-commit": string | undefined;
 }
 
 interface YamlReleaseCommitNoteReplacer {
@@ -172,6 +180,18 @@ export function getConfigFromYaml(text: string): Config {
             }
         }
     }
+    let pullRequestCommit: ConfigReleasePullRequestCommit = "exclude";
+    switch (root?.release?.["pull-request-commit"]) {
+        case "include":
+            pullRequestCommit = "include";
+            break;
+        case "include_merge_commit_only":
+            pullRequestCommit = "include_merge_commit_only";
+            break;
+        case "include_branch_commit_only":
+            pullRequestCommit = "include_branch_commit_only";
+            break;
+    }
     const release: ConfigRelease = {
         titlePrefix: root?.release?.["title-prefix"],
         titlePostfix: root?.release?.["title-postfix"],
@@ -183,6 +203,7 @@ export function getConfigFromYaml(text: string): Config {
         sortBy: sortBy,
         sortDirection: sortDirection,
         commitNoteReplacers: commitNoteReplacers,
+        pullRequestCommit: pullRequestCommit,
     };
     const branch: ConfigBranch = {
         baseBranch: root?.branch?.["base-branch"] ?? defaultBaseBranch,

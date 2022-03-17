@@ -30,7 +30,7 @@ async function run() {
             }
         }
         const commitAndPullRequests = await listPullRequests(client, option, config, commits);
-        const changes = calculateChanges(commitAndPullRequests);
+        const changes = calculateChanges(config, commitAndPullRequests);
         const currentVersion = calculateCurrentVersion(config, latestRelease);
         const nextVersion = calculateNextVersion(option, config, latestRelease, changes);
 

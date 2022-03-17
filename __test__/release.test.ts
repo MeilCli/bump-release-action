@@ -1,5 +1,5 @@
 import { Option } from "../src/option";
-import { Config, ConfigReleaseCommitNoteReplacer } from "../src/config";
+import { Config, ConfigReleaseCommitNoteReplacer, ConfigReleasePullRequestCommit } from "../src/config";
 import { PullRequest } from "../src/pull_request";
 import { Commit } from "../src/commit";
 import { calculateChanges } from "../src/calculate";
@@ -22,7 +22,8 @@ function createOption(): Option {
 function createConfig(
     sortBy: ReleaseSortBy = "commit_at",
     sortDirection: ReleaseSortDirection = "descending",
-    replacers: ConfigReleaseCommitNoteReplacer[] = []
+    replacers: ConfigReleaseCommitNoteReplacer[] = [],
+    pullRequestCommit: ConfigReleasePullRequestCommit = "exclude"
 ): Config {
     return {
         release: {
@@ -36,6 +37,7 @@ function createConfig(
             sortBy: sortBy,
             sortDirection: sortDirection,
             commitNoteReplacers: replacers,
+            pullRequestCommit: pullRequestCommit,
         },
         branch: {
             baseBranch: "master",
@@ -153,7 +155,7 @@ test("testCreateReleaseBody1", () => {
         ["pr-2", [3, "bug", undefined]],
         ["feature: menu", null],
     ]);
-    const changes = calculateChanges(commitAndPullRequests);
+    const changes = calculateChanges(config, commitAndPullRequests);
     const body = createReleaseBody(option, config, changes);
 
     expect(body).toBe(expectBody1);
@@ -180,7 +182,7 @@ test("testCreateReleaseBody2", () => {
         ["feature: menu", null],
         ["f: menu", null],
     ]);
-    const changes = calculateChanges(commitAndPullRequests);
+    const changes = calculateChanges(config, commitAndPullRequests);
     const body = createReleaseBody(option, config, changes);
 
     expect(body).toBe(expectBody2);
@@ -207,7 +209,7 @@ test("testCreateReleaseBodySortByAscending", () => {
         ["feature: menu", null],
         ["f: menu", null],
     ]);
-    const changes = calculateChanges(commitAndPullRequests);
+    const changes = calculateChanges(config, commitAndPullRequests);
     const body = createReleaseBody(option, config, changes);
 
     expect(body).toBe(expectSortByAscendingBody);
@@ -234,7 +236,7 @@ test("testCreateReleaseBodySortByNoteAndDescending", () => {
         ["feature: menu", null],
         ["f: menu", null],
     ]);
-    const changes = calculateChanges(commitAndPullRequests);
+    const changes = calculateChanges(config, commitAndPullRequests);
     const body = createReleaseBody(option, config, changes);
 
     expect(body).toBe(expectSortByNoteAndDescendingBody);
@@ -261,7 +263,7 @@ test("testCreateReleaseBodySortByNoteAndAscending", () => {
         ["feature: menu", null],
         ["f: menu", null],
     ]);
-    const changes = calculateChanges(commitAndPullRequests);
+    const changes = calculateChanges(config, commitAndPullRequests);
     const body = createReleaseBody(option, config, changes);
 
     expect(body).toBe(expectSortByNoteAndAscendingBody);
@@ -287,7 +289,7 @@ test("testCreateReleaseBodyWithReplacer", () => {
         ["pr-2", [3, "bug", undefined]],
         ["feature: menu", null],
     ]);
-    const changes = calculateChanges(commitAndPullRequests);
+    const changes = calculateChanges(config, commitAndPullRequests);
     const body = createReleaseBody(option, config, changes);
 
     expect(body).toBe(expectReplacerBody);
@@ -309,7 +311,7 @@ test("testCreateReleaseBody1", () => {
         ["pr-2", [3, "bug", undefined]],
         ["feature: menu", null],
     ]);
-    const changes = calculateChanges(commitAndPullRequests);
+    const changes = calculateChanges(config, commitAndPullRequests);
     const body = createReleaseBody(option, config, changes);
 
     expect(body).toBe(expectSkipBody);

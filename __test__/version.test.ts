@@ -37,6 +37,7 @@ function createConfig(
             sortBy: "commit_at",
             sortDirection: "descending",
             commitNoteReplacers: [],
+            pullRequestCommit: "exclude",
         },
         branch: {
             baseBranch: "master",

@@ -207,6 +207,7 @@ release:
   commit-note-replacers:
     - replace-prefix: 'feature: '
       new-prefix: 'feature '
+  pull-request-commit: 'exclude'
 branch:
   base-branch: 'develop'
   version-branch-prefix: 'v'
@@ -277,7 +278,13 @@ files:
   - replace prefix string
 - `commit-note-replacers.new-prefix`
   - new prefix string
-
+- `pull-request-commit`
+  - option of including PullRequest's commit to release note
+  - `exclude`: don't include PullRequest's commit
+  - `include`: include PullRequest's commit(merge commit and branch commit)
+  - `include_merge_commit_only`: include PullRequest's merge commit
+  - `include_branch_commit_only`: include PullRequest's branch commit
+  - default: `exclude`
 ### Branch
 - `base-branch`
   - base branch of running this action
