@@ -40,5 +40,5 @@ outputs:
   release:
     description: 'the response json of created release'
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'
