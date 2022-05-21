@@ -1,5 +1,5 @@
 ## bump-release-action
-![CI](https://github.com/MeilCli/bump-release-action/workflows/CI/badge.svg)  
+[![CI-Master](https://github.com/MeilCli/bump-release-action/actions/workflows/ci-master.yml/badge.svg)](https://github.com/MeilCli/bump-release-action/actions/workflows/ci-master.yml)  
 Bump version and publish release action
 
 This action is bump version from latest release, publish release with changes note and push to version branch. Made it for the development of the action, but it can also be used for other purposes
