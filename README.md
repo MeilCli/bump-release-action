@@ -378,11 +378,14 @@ This configuration is array value, if provide configuration, commit version up a
 ## Attention
 Currently, cannot publish action to Marketplace using API. So, if you publish action to Marketplace, open release that published by this action, click edit release, and click update release button. If you are using a version branch, it is enough to do it only when the version branch changes or when the README is updated.
 
-## Contributing
+## Contributes
+[<img src="https://gist.github.com/MeilCli/55d5d8274a7be00b4ff9f32b618a911e/raw/774ebc82e5fd1cde2e1d2dce77cd92b720861fea/metrics_contributors.svg">](https://github.com/MeilCli/bump-release-action/graphs/contributors)
+
+### Could you want to contributes?
 see [Contributing.md](./.github/CONTRIBUTING.md)
 
 ## License
-MIT License
+[<img src="https://gist.github.com/MeilCli/55d5d8274a7be00b4ff9f32b618a911e/raw/774ebc82e5fd1cde2e1d2dce77cd92b720861fea/metrics_licenses.svg">](LICENSE.txt)
 
 ### Using
 - [actions/toolkit](https://github.com/actions/toolkit), published by [MIT License](https://github.com/actions/toolkit/blob/master/LICENSE.md)
