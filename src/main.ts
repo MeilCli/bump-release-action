@@ -31,14 +31,25 @@ async function run() {
         }
         const commitAndPullRequests = await listPullRequests(client, option, config, commits);
         const changes = calculateChanges(config, commitAndPullRequests);
-        const currentVersion = calculateCurrentVersion(config, latestRelease);
-        const nextVersion = calculateNextVersion(option, config, latestRelease, changes);
-
-        const hasChanges = replaceVersions(option, config, nextVersion);
-        if (hasChanges) {
-            await pushBaseBranch(option, config, nextVersion);
-        }
-        await pushVersionBranch(option, config, nextVersion);
+        
+        var currentVersion;
+        var nextVersion;
+        
+        if (option.useExtTool) {
+			currentVersion = option.currentVersion;
+			nextVersion = option.nextVersion;
+		}
+		else {
+			currentVersion = calculateCurrentVersion(config, latestRelease);
+			nextVersion = calculateNextVersion(option, config, latestRelease, changes);			
+		}
+		
+		const hasChanges = replaceVersions(option, config, nextVersion);
+		if (hasChanges) {
+			await pushBaseBranch(option, config, nextVersion);
+		}
+		await pushVersionBranch(option, config, nextVersion);
+		
         const createdReleaseJson = await createRelease(client, option, config, nextVersion, changes);
 
         core.info("");
