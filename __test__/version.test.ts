@@ -9,6 +9,7 @@ import { Version, calculateNextVersion, cleanTagName } from "../src/version";
 function createOption(defaultBump: Version | null): Option {
     return {
         repository: "",
+        baseURL: "github.com",
         githubToken: "",
         commitUser: "",
         commitEmail: "",
