@@ -227,7 +227,7 @@ function createReleaseNote(option: Option, config: Config, change: Changes): str
                 break;
             }
         }
-        return `${commitMessage} (https://github.com/${option.repository}/commit/${commit.sha})`;
+        return `${commitMessage} (https://${option.baseURL}/${option.repository}/commit/${commit.sha})`;
     }
     return "";
 }

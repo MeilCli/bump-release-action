@@ -6,6 +6,7 @@ export interface Option {
     commitUser: string;
     commitEmail: string;
     repository: string;
+    baseURL: string;
     configPath: string;
     bump: Version | null;
     dryRun: boolean;
@@ -16,6 +17,7 @@ export interface Option {
 export function getOption(): Option {
     return {
         repository: getInput("repository"),
+        baseURL: getInputOrNull("base_url") ?? "github.com",
         githubToken: getInput("github_token"),
         commitUser: getInput("commit_user"),
         commitEmail: getInput("commit_email"),

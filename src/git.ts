@@ -43,7 +43,7 @@ export async function pushBaseBranch(option: Option, config: Config, version: st
     const message = `${messagePrefix}${version}${messagePostfix}`;
     await exec.exec(`git commit --no-edit -m ${message}`);
 
-    const remote = `https://x-access-token:${option.githubToken}@github.com/${option.repository}.git`;
+    const remote = `https://x-access-token:${option.githubToken}@${option.baseURL}/${option.repository}.git`;
     await exec.exec(`git push ${remote} HEAD:${config.branch.baseBranch}`);
 }
 
@@ -57,7 +57,7 @@ export async function pushVersionBranch(option: Option, config: Config, version:
     await exec.exec(`git config --local user.name ${option.commitUser}`);
     await exec.exec(`git config --local user.email ${option.commitEmail}`);
 
-    const remote = `https://x-access-token:${option.githubToken}@github.com/${option.repository}.git`;
+    const remote = `https://x-access-token:${option.githubToken}@${option.baseURL}/${option.repository}.git`;
     if (config.branch.createMajorVersionBranch) {
         const major = semver.major(version);
         const branchPrefix = `${config.branch.versionBranchPrefix ?? ""}`;

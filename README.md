@@ -158,6 +158,9 @@ files:
   - required
   - running repository, format: owner/repository
   - default: `${{ github.repository }}`
+- `base_url`
+  - the URL of where the repository is hosted
+  - default: `github.com`
 - `github_token`
   - required
   - github token, using to read and write repository

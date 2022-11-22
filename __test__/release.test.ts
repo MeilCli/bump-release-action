@@ -9,6 +9,7 @@ function createOption(): Option {
     return {
         githubToken: "",
         repository: "MeilCli/bump-release-action",
+        baseURL: "github.com",
         commitUser: "",
         commitEmail: "",
         configPath: "",
