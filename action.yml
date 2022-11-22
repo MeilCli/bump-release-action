@@ -35,6 +35,12 @@ inputs:
   base_url:
     description: "The where the repo is hosted."
     default: "github.com"
+  use_ext_tool:
+    description: 'if external tool is used, the current_version and next_version inputs will be used'
+  current_version:
+    description: 'the current semver'
+  next_version:
+    description: 'the updated semver'
 outputs:
   current_version:
     description: 'calculated current version'
