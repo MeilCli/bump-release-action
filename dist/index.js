@@ -543,7 +543,7 @@ async function pushBaseBranch(option, config, version) {
     const messagePostfix = `${config.branch.bumpVersionCommitPostfix ?? ""}`;
     const message = `${messagePrefix}${version}${messagePostfix}`;
     await exec.exec(`git commit --no-edit -m ${message}`);
-    const remote = `https://x-access-token:${option.githubToken}@github.com/${option.repository}.git`;
+    const remote = `https://x-access-token:${option.githubToken}@${option.baseURL}/${option.repository}.git`;
     await exec.exec(`git push ${remote} HEAD:${config.branch.baseBranch}`);
 }
 exports.pushBaseBranch = pushBaseBranch;
@@ -556,7 +556,7 @@ async function pushVersionBranch(option, config, version) {
     }
     await exec.exec(`git config --local user.name ${option.commitUser}`);
     await exec.exec(`git config --local user.email ${option.commitEmail}`);
-    const remote = `https://x-access-token:${option.githubToken}@github.com/${option.repository}.git`;
+    const remote = `https://x-access-token:${option.githubToken}@${option.baseURL}/${option.repository}.git`;
     if (config.branch.createMajorVersionBranch) {
         const major = semver.major(version);
         const branchPrefix = `${config.branch.versionBranchPrefix ?? ""}`;
@@ -746,6 +746,7 @@ const version_1 = __nccwpck_require__(8217);
 function getOption() {
     return {
         repository: getInput("repository"),
+        baseURL: getInputOrNull("base_url") ?? "github.com",
         githubToken: getInput("github_token"),
         commitUser: getInput("commit_user"),
         commitEmail: getInput("commit_email"),
@@ -1121,7 +1122,7 @@ function createReleaseNote(option, config, change) {
                 break;
             }
         }
-        return `${commitMessage} (https://github.com/${option.repository}/commit/${commit.sha})`;
+        return `${commitMessage} (https://${option.baseURL}/${option.repository}/commit/${commit.sha})`;
     }
     return "";
 }
