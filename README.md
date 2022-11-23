@@ -185,6 +185,9 @@ files:
   - if `true`, create release as draft
 - `pre_release`
   - if `true`, create release as pre release
+- `force_versioning`: Manually sets the version via the current_version and next_version arguments
+- `current_version`: The current version
+- `next_version`: The updated version
 
 ## Output
 - `current_version`
