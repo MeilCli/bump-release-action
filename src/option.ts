@@ -12,7 +12,7 @@ export interface Option {
     dryRun: boolean;
     preRelease: boolean;
     draft: boolean;
-    useExtTool: boolean;
+    forceVersioning: boolean;
     currentVersion: string;
     nextVersion: string;
 }
@@ -29,7 +29,7 @@ export function getOption(): Option {
         dryRun: getInputOrNull("dry_run") == "true",
         preRelease: getInputOrNull("pre_release") == "true",
         draft: getInputOrNull("draft") == "true",
-        useExtTool: getInputOrNull("use_ext_tool") == "true",
+        forceVersioning: getInputOrNull("force_versioning") == "true",
         currentVersion: getInput("current_version"),
         nextVersion: getInput("next_version"),
     };

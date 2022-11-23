@@ -35,7 +35,7 @@ async function run() {
         var currentVersion;
         var nextVersion;
         
-        if (option.useExtTool) {
+        if (option.forceVersioning) {
 			currentVersion = option.currentVersion;
 			nextVersion = option.nextVersion;
 		}
