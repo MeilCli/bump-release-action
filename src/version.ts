@@ -8,7 +8,7 @@ import { Commit } from "./commit";
 
 export const versionList = ["major", "minor", "patch"] as const;
 
-export type Version = typeof versionList[number];
+export type Version = (typeof versionList)[number];
 
 export function calculateCurrentVersion(config: Config, release: Release | null): string {
     if (release == null) {

@@ -9,9 +9,9 @@ import { Commit } from "./commit";
 export const releaseSortByList = ["note", "commit_at"] as const;
 export const releaseSortDirectionList = ["ascending", "descending"] as const;
 
-export type ReleaseSortBy = typeof releaseSortByList[number];
+export type ReleaseSortBy = (typeof releaseSortByList)[number];
 
-export type ReleaseSortDirection = typeof releaseSortDirectionList[number];
+export type ReleaseSortDirection = (typeof releaseSortDirectionList)[number];
 
 export interface Release {
     tagName: string;
