@@ -503,7 +503,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.pushVersionBranch = exports.pushBaseBranch = exports.checkoutBranch = exports.echoCurrentBranch = void 0;
+exports.pushVersionBranch = exports.pushBaseBranch = exports.checkoutTargetBranch = exports.checkoutBranch = exports.echoCurrentBranch = void 0;
 const exec = __importStar(__nccwpck_require__(1514));
 const semver = __importStar(__nccwpck_require__(1383));
 async function echoCurrentBranch() {
@@ -527,6 +527,20 @@ async function checkoutBranch(branch, create) {
     }
 }
 exports.checkoutBranch = checkoutBranch;
+async function checkoutTargetBranch(branch, create, hasRemote) {
+    if (create) {
+        if (hasRemote) {
+            await exec.exec(`git checkout --track origin/${branch}`);
+        }
+        else {
+            await exec.exec(`git checkout -b ${branch}`);
+        }
+    }
+    else {
+        await exec.exec(`git checkout ${branch}`);
+    }
+}
+exports.checkoutTargetBranch = checkoutTargetBranch;
 async function pushBaseBranch(option, config, version) {
     if (option.dryRun) {
         return;
@@ -562,9 +576,10 @@ async function pushVersionBranch(option, config, version) {
         const branchPrefix = `${config.branch.versionBranchPrefix ?? ""}`;
         const branchPostfix = `${config.branch.versionBranchPostfix ?? ""}`;
         const branch = `${branchPrefix}${major}${branchPostfix}`;
-        const has = await hasBranch(branch);
-        await checkoutBranch(branch, has == false);
         await exec.exec("git fetch -p");
+        const hasRemote = await hasRemoteBranch(branch);
+        const has = await hasBranch(branch);
+        await checkoutTargetBranch(branch, has == false, hasRemote);
         await mergeBranch(config.branch.baseBranch);
         await exec.exec(`git push ${remote} HEAD:${branch}`);
         await checkoutBranch(config.branch.baseBranch, false);
@@ -575,9 +590,10 @@ async function pushVersionBranch(option, config, version) {
         const branchPrefix = `${config.branch.versionBranchPrefix ?? ""}`;
         const branchPostfix = `${config.branch.versionBranchPostfix ?? ""}`;
         const branch = `${branchPrefix}${major}.${minor}${branchPostfix}`;
-        const has = await hasBranch(branch);
-        await checkoutBranch(branch, has == false);
         await exec.exec("git fetch -p");
+        const hasRemote = await hasRemoteBranch(branch);
+        const has = await hasBranch(branch);
+        await checkoutTargetBranch(branch, has == false, hasRemote);
         await mergeBranch(config.branch.baseBranch);
         await exec.exec(`git push ${remote} HEAD:${branch}`);
         await checkoutBranch(config.branch.baseBranch, false);
@@ -598,6 +614,21 @@ async function hasBranch(branch) {
             .split(" ")
             .map((x) => x.trim())
             .indexOf(branch));
+}
+async function hasRemoteBranch(branch) {
+    const execOption = { ignoreReturnCode: true };
+    let stdout = "";
+    execOption.listeners = {
+        stdout: (data) => {
+            stdout += data.toString();
+        },
+    };
+    await exec.exec("git branch -r", undefined, execOption);
+    return (0 <=
+        stdout
+            .split(" ")
+            .map((x) => x.trim())
+            .indexOf(`origin/${branch}`));
 }
 async function mergeBranch(branch) {
     const execOption = { ignoreReturnCode: true };
