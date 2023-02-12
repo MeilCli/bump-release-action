@@ -153,6 +153,23 @@ files:
 
 ```
 
+### Default commit calculating strategy
+```mermaid
+gitGraph:
+    commit id: "1"
+    commit id: "2"
+    branch pr
+    commit id: "3" type:reverse
+    commit id: "4" type:reverse
+    checkout main
+    merge pr id: "merge pull request" type:reverse tag:"label"
+    commit id: "5"
+```
+Pull request commit is excluded on commit calculating about release note and version.
+
+[more information](./documents/commit-calculating-strategy.md)
+
+
 ## Input
 - `repository`
   - required
@@ -288,6 +305,7 @@ files:
   - `include_merge_commit_only`: include PullRequest's merge commit
   - `include_branch_commit_only`: include PullRequest's branch commit
   - default: `exclude`
+  - [more information](./documents/commit-calculating-strategy.md)
 ### Branch
 - `base-branch`
   - base branch of running this action
