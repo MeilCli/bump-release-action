@@ -17,9 +17,7 @@ function createOption(): Option {
         dryRun: false,
         preRelease: false,
         draft: false,
-        forceVersioning: false,
-        currentVersion: "",
-        nextVersion: "",
+        forceVersioning: "",
     };
 }
 

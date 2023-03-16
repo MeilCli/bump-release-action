@@ -36,11 +36,7 @@ inputs:
     description: "The where the repo is hosted."
     default: "github.com"
   force_versioning:
-    description: 'Manually set the version using the current / next version fields'
-  current_version:
-    description: 'the current semver'
-  next_version:
-    description: 'the updated semver'
+    description: 'Manually set the version'
 outputs:
   current_version:
     description: 'calculated current version'

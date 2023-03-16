@@ -18,9 +18,7 @@ function createOption(defaultBump: Version | null): Option {
         dryRun: false,
         preRelease: false,
         draft: false,
-        forceVersioning: false,
-        currentVersion: "",
-        nextVersion: "",
+        forceVersioning: "",
     };
 }
 
