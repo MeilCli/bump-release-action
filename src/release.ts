@@ -44,7 +44,7 @@ async function getTagCommitSha(
     client: InstanceType<typeof GitHub>,
     owner: string,
     repository: string,
-    tagName: string
+    tagName: string,
 ): Promise<string | null> {
     const response = await client.rest.git.getRef({ owner: owner, repo: repository, ref: `tags/${tagName}` });
     if (400 <= response.status) {
@@ -58,7 +58,7 @@ export async function createRelease(
     option: Option,
     config: Config,
     nextVersion: string,
-    changes: Changes[]
+    changes: Changes[],
 ): Promise<string> {
     const owner = option.repository.split("/")[0];
     const repository = option.repository.split("/")[1];
@@ -165,7 +165,7 @@ function aggregateCategories(config: Config, changes: Changes[]): [ConfigCategor
 function aggregateReleaseNotes(
     option: Option,
     config: Config,
-    categories: [ConfigCategory, Changes[]][]
+    categories: [ConfigCategory, Changes[]][],
 ): [string, string[]][] {
     const releaseNotes: [string, [string, number][]][] = [];
 

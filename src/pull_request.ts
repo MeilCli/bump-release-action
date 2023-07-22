@@ -41,7 +41,7 @@ export async function listPullRequests(
     client: InstanceType<typeof GitHub>,
     option: Option,
     config: Config,
-    commits: Commit[]
+    commits: Commit[],
 ): Promise<[Commit, PullRequest | null][]> {
     const owner = option.repository.split("/")[0];
     const repository = option.repository.split("/")[1];
@@ -93,8 +93,8 @@ export async function listPullRequests(
                         labels: data.labels,
                         merge_commit_sha: data.merge_commit_sha,
                     },
-                    await listCommits(client, owner, repository, data.number)
-                )
+                    await listCommits(client, owner, repository, data.number),
+                ),
             );
         }
         return result;
@@ -141,7 +141,7 @@ async function listCommits(
     client: InstanceType<typeof GitHub>,
     owner: string,
     repository: string,
-    number: number
+    number: number,
 ): Promise<Commit[]> {
     let commits: Commit[] = [];
 

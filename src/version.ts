@@ -21,7 +21,7 @@ export function calculateNextVersion(
     option: Option,
     config: Config,
     release: Release | null,
-    changes: Changes[]
+    changes: Changes[],
 ): string {
     const currentVersion = calculateCurrentVersion(config, release);
     if (release == null) {

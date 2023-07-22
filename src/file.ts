@@ -99,7 +99,7 @@ export function replaceVersion(text: string, line: number, start: number | undef
         result.push(
             lines[i].slice(0, searchStart + matchedIndex) +
                 version +
-                lines[i].slice(searchStart + matchedIndex + matchedVersion.length, lines[i].length)
+                lines[i].slice(searchStart + matchedIndex + matchedVersion.length, lines[i].length),
         );
         replaced = true;
     }
