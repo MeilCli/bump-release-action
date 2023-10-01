@@ -31,14 +31,25 @@ async function run() {
         }
         const commitAndPullRequests = await listPullRequests(client, option, config, commits);
         const changes = calculateChanges(config, commitAndPullRequests);
-        const currentVersion = calculateCurrentVersion(config, latestRelease);
-        const nextVersion = calculateNextVersion(option, config, latestRelease, changes);
-
-        const hasChanges = replaceVersions(option, config, nextVersion);
-        if (hasChanges) {
-            await pushBaseBranch(option, config, nextVersion);
-        }
-        await pushVersionBranch(option, config, nextVersion);
+        
+        const forceVersioning: string | null = option.forceVersioning;
+		var [currentVersion, nextVersion] = forceVersioning?.split("=>").map((item: string) => item.trim()) ?? [undefined, undefined]
+		if (currentVersion != undefined && currentVersion != "" && nextVersion != undefined && nextVersion != "") {
+			if (currentVersion == nextVersion) {       
+				throw new Error(`current version(${currentVersion}) is the same as next version(${nextVersion})`);
+			}
+		}
+		else {
+			currentVersion = calculateCurrentVersion(config, latestRelease);
+			nextVersion = calculateNextVersion(option, config, latestRelease, changes);			
+		}
+		
+		const hasChanges = replaceVersions(option, config, nextVersion);
+		if (hasChanges) {
+			await pushBaseBranch(option, config, nextVersion);
+		}
+		await pushVersionBranch(option, config, nextVersion);
+		
         const createdReleaseJson = await createRelease(client, option, config, nextVersion, changes);
 
         core.info("");

@@ -35,6 +35,8 @@ inputs:
   base_url:
     description: "The where the repo is hosted."
     default: "github.com"
+  force_versioning:
+    description: 'Manually set the version'
 outputs:
   current_version:
     description: 'calculated current version'

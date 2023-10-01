@@ -7,11 +7,12 @@ export interface Option {
     commitEmail: string;
     repository: string;
     baseURL: string;
-    configPath: string;
+    configPath: string;    
     bump: Version | null;
     dryRun: boolean;
     preRelease: boolean;
     draft: boolean;
+    forceVersioning: string | null;
 }
 
 export function getOption(): Option {
@@ -26,6 +27,7 @@ export function getOption(): Option {
         dryRun: getInputOrNull("dry_run") == "true",
         preRelease: getInputOrNull("pre_release") == "true",
         draft: getInputOrNull("draft") == "true",
+        forceVersioning: getInput("force_versioning"),
     };
 }
 

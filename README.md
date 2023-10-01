@@ -202,7 +202,7 @@ Pull request commit is excluded on commit calculating about release note and ver
   - if `true`, create release as draft
 - `pre_release`
   - if `true`, create release as pre release
-
+- `force_versioning`: Manually sets the version. Expected string format: "current_version => next_version" 
 ## Output
 - `current_version`
   - calculated current version
