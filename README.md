@@ -54,16 +54,16 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v4
         with:
-          node-version: 12
+          node-version: 20
       - run: npm install
       - run: npm run build
       - run: npm run test
-      - uses: MeilCli/bump-release-action@v1
+      - uses: MeilCli/bump-release-action@v2
         with:
           config_path: '.github/bump.yml'
           bump: ${{ github.event.inputs.bump }}
@@ -71,7 +71,7 @@ jobs:
           draft: ${{ github.event.inputs.draft }}
           pre_release: ${{ github.event.inputs.pre_release }}
 ```
-You can also pin to a [specific release](https://github.com/MeilCli/bump-release-action/releases) version in the format `@v1.x.x`
+You can also pin to a [specific release](https://github.com/MeilCli/bump-release-action/releases) version in the format `@v2.x.x`
 
 ```yaml
 # .github/bump.yml
