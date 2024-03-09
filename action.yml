@@ -33,8 +33,8 @@ inputs:
   pre_release:
     description: 'if true, create release as pre release'
   base_url:
-    description: "The where the repo is hosted."
-    default: "github.com"
+    description: 'The where the repo is hosted.'
+    default: 'github.com'
 outputs:
   current_version:
     description: 'calculated current version'
@@ -43,5 +43,5 @@ outputs:
   release:
     description: 'the response json of created release'
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
