@@ -7,7 +7,7 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.calculateChanges = void 0;
+exports.calculateChanges = calculateChanges;
 function calculateChanges(config, commitAndPullRequests) {
     const result = [];
     const skipCommitShas = [];
@@ -36,7 +36,6 @@ function calculateChanges(config, commitAndPullRequests) {
     }
     return result;
 }
-exports.calculateChanges = calculateChanges;
 
 
 /***/ }),
@@ -70,7 +69,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseCommits = exports.listCommits = void 0;
+exports.listCommits = listCommits;
+exports.parseCommits = parseCommits;
 const exec = __importStar(__nccwpck_require__(1514));
 const core = __importStar(__nccwpck_require__(2186));
 async function listCommits(config) {
@@ -86,7 +86,6 @@ async function listCommits(config) {
     core.info("");
     return parseCommits(text);
 }
-exports.listCommits = listCommits;
 function parseCommits(text) {
     const commitCreator = (line) => {
         const value = line.trim();
@@ -103,7 +102,6 @@ function parseCommits(text) {
         .filter((x) => 0 < x.length)
         .map(commitCreator);
 }
-exports.parseCommits = parseCommits;
 
 
 /***/ }),
@@ -137,7 +135,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getConfigFromYaml = exports.getConfigFromFile = exports.defaultBump = exports.defaultCategoryTitle = exports.defaultCreateMinorVersionBranch = exports.defaultCreateMajorVersionBranch = exports.defaultBaseBranch = exports.defaultSortDirection = exports.defaultSortBy = exports.defaultInitialVersion = exports.defaultBodyWhenEmptyChanges = exports.defaultBodyTitle = void 0;
+exports.defaultBump = exports.defaultCategoryTitle = exports.defaultCreateMinorVersionBranch = exports.defaultCreateMajorVersionBranch = exports.defaultBaseBranch = exports.defaultSortDirection = exports.defaultSortBy = exports.defaultInitialVersion = exports.defaultBodyWhenEmptyChanges = exports.defaultBodyTitle = void 0;
+exports.getConfigFromFile = getConfigFromFile;
+exports.getConfigFromYaml = getConfigFromYaml;
 const fs = __importStar(__nccwpck_require__(7147));
 const yaml = __importStar(__nccwpck_require__(1917));
 const version_1 = __nccwpck_require__(8217);
@@ -156,7 +156,6 @@ function getConfigFromFile(filePath) {
     const text = fs.readFileSync(filePath).toString();
     return getConfigFromYaml(text);
 }
-exports.getConfigFromFile = getConfigFromFile;
 function getConfigFromYaml(text) {
     const root = yaml.load(text);
     let sortBy = exports.defaultSortBy;
@@ -277,7 +276,6 @@ function getConfigFromYaml(text) {
         files: files,
     };
 }
-exports.getConfigFromYaml = getConfigFromYaml;
 
 
 /***/ }),
@@ -311,7 +309,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.splitLines = exports.replaceVersion = exports.replaceVersions = void 0;
+exports.replaceVersions = replaceVersions;
+exports.replaceVersion = replaceVersion;
+exports.splitLines = splitLines;
 const fs = __importStar(__nccwpck_require__(7147));
 const semver = __importStar(__nccwpck_require__(1383));
 const core = __importStar(__nccwpck_require__(2186));
@@ -368,7 +368,6 @@ function replaceVersions(option, config, version) {
     }
     return changed;
 }
-exports.replaceVersions = replaceVersions;
 function replaceVersion(text, line, start, version) {
     const lines = splitLines(text);
     const result = [];
@@ -410,7 +409,6 @@ function replaceVersion(text, line, start, version) {
     }
     return result.join("");
 }
-exports.replaceVersion = replaceVersion;
 function splitLines(text) {
     const result = [];
     for (let i = 0; i < text.length;) {
@@ -429,7 +427,6 @@ function splitLines(text) {
     }
     return result;
 }
-exports.splitLines = splitLines;
 // return [index, size]
 function indexOfLine(text, start) {
     const rn = text.indexOf("\r\n", start);
@@ -503,7 +500,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.pushVersionBranch = exports.pushBaseBranch = exports.checkoutTargetBranch = exports.checkoutBranch = exports.echoCurrentBranch = void 0;
+exports.echoCurrentBranch = echoCurrentBranch;
+exports.checkoutBranch = checkoutBranch;
+exports.checkoutTargetBranch = checkoutTargetBranch;
+exports.pushBaseBranch = pushBaseBranch;
+exports.pushVersionBranch = pushVersionBranch;
 const exec = __importStar(__nccwpck_require__(1514));
 const semver = __importStar(__nccwpck_require__(1383));
 async function echoCurrentBranch() {
@@ -517,7 +518,6 @@ async function echoCurrentBranch() {
     await exec.exec("git symbolic-ref --short HEAD", undefined, execOption);
     return stdout.trim();
 }
-exports.echoCurrentBranch = echoCurrentBranch;
 async function checkoutBranch(branch, create) {
     if (create) {
         await exec.exec(`git checkout -b ${branch}`);
@@ -526,7 +526,6 @@ async function checkoutBranch(branch, create) {
         await exec.exec(`git checkout ${branch}`);
     }
 }
-exports.checkoutBranch = checkoutBranch;
 async function checkoutTargetBranch(branch, create, hasRemote) {
     if (create) {
         if (hasRemote) {
@@ -540,7 +539,6 @@ async function checkoutTargetBranch(branch, create, hasRemote) {
         await exec.exec(`git checkout ${branch}`);
     }
 }
-exports.checkoutTargetBranch = checkoutTargetBranch;
 async function pushBaseBranch(option, config, version) {
     if (option.dryRun) {
         return;
@@ -560,7 +558,6 @@ async function pushBaseBranch(option, config, version) {
     const remote = `https://x-access-token:${option.githubToken}@${option.baseURL}/${option.repository}.git`;
     await exec.exec(`git push ${remote} HEAD:${config.branch.baseBranch}`);
 }
-exports.pushBaseBranch = pushBaseBranch;
 async function pushVersionBranch(option, config, version) {
     if (option.dryRun) {
         return;
@@ -599,7 +596,6 @@ async function pushVersionBranch(option, config, version) {
         await checkoutBranch(config.branch.baseBranch, false);
     }
 }
-exports.pushVersionBranch = pushVersionBranch;
 async function hasBranch(branch) {
     const execOption = { ignoreReturnCode: true };
     let stdout = "";
@@ -771,7 +767,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getOption = void 0;
+exports.getOption = getOption;
 const core = __importStar(__nccwpck_require__(2186));
 const version_1 = __nccwpck_require__(8217);
 function getOption() {
@@ -788,7 +784,6 @@ function getOption() {
         draft: getInputOrNull("draft") == "true",
     };
 }
-exports.getOption = getOption;
 function getInput(key) {
     return core.getInput(key, { required: true });
 }
@@ -818,7 +813,7 @@ function getVersionOrNull(key) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.listPullRequests = void 0;
+exports.listPullRequests = listPullRequests;
 async function listPullRequests(client, option, config, commits) {
     const owner = option.repository.split("/")[0];
     const repository = option.repository.split("/")[1];
@@ -902,7 +897,6 @@ async function listPullRequests(client, option, config, commits) {
     }
     return result;
 }
-exports.listPullRequests = listPullRequests;
 async function listCommits(client, owner, repository, number) {
     let commits = [];
     const selector = (data) => {
@@ -968,7 +962,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createReleaseBody = exports.createRelease = exports.getLatestRelease = exports.releaseSortDirectionList = exports.releaseSortByList = void 0;
+exports.releaseSortDirectionList = exports.releaseSortByList = void 0;
+exports.getLatestRelease = getLatestRelease;
+exports.createRelease = createRelease;
+exports.createReleaseBody = createReleaseBody;
 const core = __importStar(__nccwpck_require__(2186));
 exports.releaseSortByList = ["note", "commit_at"];
 exports.releaseSortDirectionList = ["ascending", "descending"];
@@ -994,7 +991,6 @@ async function getLatestRelease(client, option) {
         return null;
     }
 }
-exports.getLatestRelease = getLatestRelease;
 async function getTagCommitSha(client, owner, repository, tagName) {
     const response = await client.rest.git.getRef({ owner: owner, repo: repository, ref: `tags/${tagName}` });
     if (400 <= response.status) {
@@ -1034,7 +1030,6 @@ async function createRelease(client, option, config, nextVersion, changes) {
     }
     return JSON.stringify(response.data);
 }
-exports.createRelease = createRelease;
 function createReleaseBody(option, config, changes) {
     const categories = aggregateCategories(config, changes);
     if (categories.length == 0 || categories.map((x) => x[1].length).reduce((sum, current) => sum + current, 0) == 0) {
@@ -1056,7 +1051,6 @@ function createReleaseBody(option, config, changes) {
     }
     return result;
 }
-exports.createReleaseBody = createReleaseBody;
 function aggregateCategories(config, changes) {
     const categories = [];
     for (const category of config.categories) {
@@ -1190,7 +1184,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.cleanTagName = exports.calculateNextVersion = exports.calculateCurrentVersion = exports.versionList = void 0;
+exports.versionList = void 0;
+exports.calculateCurrentVersion = calculateCurrentVersion;
+exports.calculateNextVersion = calculateNextVersion;
+exports.cleanTagName = cleanTagName;
 const semver = __importStar(__nccwpck_require__(1383));
 exports.versionList = ["major", "minor", "patch"];
 function calculateCurrentVersion(config, release) {
@@ -1199,7 +1196,6 @@ function calculateCurrentVersion(config, release) {
     }
     return cleanTagName(config, release.tagName);
 }
-exports.calculateCurrentVersion = calculateCurrentVersion;
 function calculateNextVersion(option, config, release, changes) {
     const currentVersion = calculateCurrentVersion(config, release);
     if (release == null) {
@@ -1290,7 +1286,6 @@ function calculateNextVersion(option, config, release, changes) {
     }
     return `${major}.${minor}.${patch}`;
 }
-exports.calculateNextVersion = calculateNextVersion;
 function cleanTagName(config, tagName) {
     let result = tagName;
     if (config.release.tagPrefix != null && result.startsWith(config.release.tagPrefix)) {
@@ -1305,7 +1300,6 @@ function cleanTagName(config, tagName) {
     }
     return resultOrNull;
 }
-exports.cleanTagName = cleanTagName;
 function looseClean(version) {
     const semverResult = semver.clean(version);
     if (semverResult != null) {
