@@ -1057,7 +1057,7 @@ async function getLatestRelease(client, option) {
             commitSha,
         };
     }
-    catch (error) {
+    catch {
         return null;
     }
 }
