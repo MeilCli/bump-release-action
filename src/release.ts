@@ -35,7 +35,7 @@ export async function getLatestRelease(client: InstanceType<typeof GitHub>, opti
             tagName,
             commitSha,
         };
-    } catch (error) {
+    } catch {
         return null;
     }
 }
