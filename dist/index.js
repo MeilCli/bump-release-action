@@ -35941,12 +35941,12 @@ class Octokit {
 }
 
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/version.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/version.js
 const dist_src_version_VERSION = "17.0.0";
 
 //# sourceMappingURL=version.js.map
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/generated/endpoints.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/generated/endpoints.js
 const Endpoints = {
   actions: {
     addCustomLabelsToSelfHostedRunnerForOrg: [
@@ -38240,7 +38240,7 @@ var endpoints_default = Endpoints;
 
 //# sourceMappingURL=endpoints.js.map
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/endpoints-to-methods.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/endpoints-to-methods.js
 
 const endpointMethodsMap = /* @__PURE__ */ new Map();
 for (const [scope, endpoints] of Object.entries(endpoints_default)) {
@@ -38366,7 +38366,7 @@ function decorate(octokit, scope, methodName, defaults, decorations) {
 
 //# sourceMappingURL=endpoints-to-methods.js.map
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/index.js
 
 
 function restEndpointMethods(octokit) {
@@ -38922,7 +38922,6 @@ function calculateNextVersion(option, config, release, changes) {
             for (const prefix of config.bump.patch.commits) {
                 if (commit.message.startsWith(prefix)) {
                     bump = "patch";
-                    found = true;
                     break;
                 }
             }
