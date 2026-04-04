@@ -4,6 +4,7 @@ import { PullRequest } from "../src/pull_request";
 import { Commit } from "../src/commit";
 import { calculateChanges } from "../src/calculate";
 import { createReleaseBody, ReleaseSortBy, ReleaseSortDirection } from "../src/release";
+import { test, expect } from "@jest/globals";
 
 function createOption(): Option {
     return {
@@ -24,7 +25,7 @@ function createConfig(
     sortBy: ReleaseSortBy = "commit_at",
     sortDirection: ReleaseSortDirection = "descending",
     replacers: ConfigReleaseCommitNoteReplacer[] = [],
-    pullRequestCommit: ConfigReleasePullRequestCommit = "exclude"
+    pullRequestCommit: ConfigReleasePullRequestCommit = "exclude",
 ): Config {
     return {
         release: {
@@ -103,7 +104,7 @@ function createConfig(
 }
 
 function createCommitAndPullRequests(
-    changes: [string, [number, string, string | undefined] | null][]
+    changes: [string, [number, string, string | undefined] | null][],
 ): [Commit, PullRequest | null][] {
     const result: [Commit, PullRequest | null][] = [];
 

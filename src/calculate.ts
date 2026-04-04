@@ -1,6 +1,6 @@
-import { Config } from "./config";
-import { PullRequest } from "./pull_request";
-import { Commit } from "./commit";
+import { Config } from "./config.js";
+import { PullRequest } from "./pull_request.js";
+import { Commit } from "./commit.js";
 
 export interface Changes {
     type: "commit" | "pull_request";

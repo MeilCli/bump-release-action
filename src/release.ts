@@ -1,10 +1,10 @@
 import * as core from "@actions/core";
 import { GitHub } from "@actions/github/lib/utils";
-import { Option } from "./option";
-import { Config, ConfigCategory } from "./config";
-import { Changes } from "./calculate";
-import { PullRequest } from "./pull_request";
-import { Commit } from "./commit";
+import { Option } from "./option.js";
+import { Config, ConfigCategory } from "./config.js";
+import { Changes } from "./calculate.js";
+import { PullRequest } from "./pull_request.js";
+import { Commit } from "./commit.js";
 
 export const releaseSortByList = ["note", "commit_at"] as const;
 export const releaseSortDirectionList = ["ascending", "descending"] as const;

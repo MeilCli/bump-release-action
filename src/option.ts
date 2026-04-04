@@ -1,5 +1,5 @@
 import * as core from "@actions/core";
-import { Version, versionList } from "./version";
+import { Version, versionList } from "./version.js";
 
 export interface Option {
     githubToken: string;

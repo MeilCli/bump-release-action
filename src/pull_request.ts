@@ -1,7 +1,7 @@
 import { GitHub } from "@actions/github/lib/utils";
-import { Option } from "./option";
-import { Config } from "./config";
-import { Commit } from "./commit";
+import { Option } from "./option.js";
+import { Config } from "./config.js";
+import { Commit } from "./commit.js";
 
 export interface PullRequest {
     htmlUrl: string;

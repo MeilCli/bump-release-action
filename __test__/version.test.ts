@@ -5,6 +5,7 @@ import { Changes } from "../src/calculate";
 import { PullRequest } from "../src/pull_request";
 import { Commit } from "../src/commit";
 import { Version, calculateNextVersion, cleanTagName } from "../src/version";
+import { test, expect } from "@jest/globals";
 
 function createOption(defaultBump: Version | null): Option {
     return {
@@ -24,7 +25,7 @@ function createOption(defaultBump: Version | null): Option {
 function createConfig(
     tagPrefix: string | undefined,
     tagPostfix: string | undefined,
-    defaultBump: Version = "patch"
+    defaultBump: Version = "patch",
 ): Config {
     return {
         release: {
@@ -122,9 +123,9 @@ test("testCleanTagName", () => {
     expect(cleanTagName(createConfig("release-", undefined), "release-2.1.0")).toBe("2.1.0");
     expect(cleanTagName(createConfig(undefined, "-stable"), "v2.1.0-stable")).toBe("2.1.0");
     expect(cleanTagName(createConfig("release-", "-stable"), "release-2.1.0-stable")).toBe("2.1.0");
-    expect(() => cleanTagName(createConfig(undefined, undefined), "v.0")).toThrowError(/.+/);
-    expect(() => cleanTagName(createConfig(undefined, undefined), "v1.")).toThrowError(/.+/);
-    expect(() => cleanTagName(createConfig(undefined, undefined), "v")).toThrowError(/.+/);
+    expect(() => cleanTagName(createConfig(undefined, undefined), "v.0")).toThrow(/.+/);
+    expect(() => cleanTagName(createConfig(undefined, undefined), "v1.")).toThrow(/.+/);
+    expect(() => cleanTagName(createConfig(undefined, undefined), "v")).toThrow(/.+/);
 });
 
 test("calculateNextVersion", () => {
@@ -136,32 +137,32 @@ test("calculateNextVersion", () => {
             createOption("patch"),
             createConfig(undefined, undefined),
             createRelease("v2.1.1"),
-            createChanges([])
-        )
+            createChanges([]),
+        ),
     ).toBe("2.1.2");
     expect(
         calculateNextVersion(
             createOption("minor"),
             createConfig(undefined, undefined),
             createRelease("v2.1.1"),
-            createChanges([])
-        )
+            createChanges([]),
+        ),
     ).toBe("2.2.0");
     expect(
         calculateNextVersion(
             createOption("major"),
             createConfig(undefined, undefined),
             createRelease("v2.1.1"),
-            createChanges([])
-        )
+            createChanges([]),
+        ),
     ).toBe("3.0.0");
     expect(
         calculateNextVersion(
             createOption(null),
             createConfig(undefined, undefined),
             createRelease("v2.1.1"),
-            createChanges([])
-        )
+            createChanges([]),
+        ),
     ).toBe("2.1.2");
 
     /**
@@ -172,8 +173,8 @@ test("calculateNextVersion", () => {
             createOption("patch"),
             createConfig("release-", "-stable"),
             createRelease("release-2.1.1-stable"),
-            createChanges([])
-        )
+            createChanges([]),
+        ),
     ).toBe("2.1.2");
 
     /**
@@ -184,72 +185,72 @@ test("calculateNextVersion", () => {
             createOption(null),
             createConfig(undefined, undefined),
             createRelease("v2.1.1"),
-            createChanges(["fix", ["skip"], ["patch"]])
-        )
+            createChanges(["fix", ["skip"], ["patch"]]),
+        ),
     ).toBe("2.1.2");
     expect(
         calculateNextVersion(
             createOption(null),
             createConfig(undefined, undefined),
             createRelease("v2.1.1"),
-            createChanges(["fix", ["skip"], ["minor"]])
-        )
+            createChanges(["fix", ["skip"], ["minor"]]),
+        ),
     ).toBe("2.2.0");
     expect(
         calculateNextVersion(
             createOption(null),
             createConfig(undefined, undefined),
             createRelease("v2.1.1"),
-            createChanges(["minor: fix", ["skip"], ["patch"]])
-        )
+            createChanges(["minor: fix", ["skip"], ["patch"]]),
+        ),
     ).toBe("2.2.0");
     expect(
         calculateNextVersion(
             createOption(null),
             createConfig(undefined, undefined),
             createRelease("v2.1.1"),
-            createChanges(["patch: fix", ["skip"], ["minor"]])
-        )
+            createChanges(["patch: fix", ["skip"], ["minor"]]),
+        ),
     ).toBe("2.2.0");
     expect(
         calculateNextVersion(
             createOption(null),
             createConfig(undefined, undefined),
             createRelease("v2.1.1"),
-            createChanges(["patch: fix", ["skip"], "minor: fix"])
-        )
+            createChanges(["patch: fix", ["skip"], "minor: fix"]),
+        ),
     ).toBe("2.2.0");
     expect(
         calculateNextVersion(
             createOption(null),
             createConfig(undefined, undefined),
             createRelease("v2.1.1"),
-            createChanges(["fix", ["skip"], ["major"]])
-        )
+            createChanges(["fix", ["skip"], ["major"]]),
+        ),
     ).toBe("3.0.0");
     expect(
         calculateNextVersion(
             createOption(null),
             createConfig(undefined, undefined),
             createRelease("v2.1.1"),
-            createChanges(["major: fix", ["minor"], ["patch"]])
-        )
+            createChanges(["major: fix", ["minor"], ["patch"]]),
+        ),
     ).toBe("3.0.0");
     expect(
         calculateNextVersion(
             createOption(null),
             createConfig(undefined, undefined),
             createRelease("v2.1.1"),
-            createChanges(["patch: fix", ["minor"], ["major"]])
-        )
+            createChanges(["patch: fix", ["minor"], ["major"]]),
+        ),
     ).toBe("3.0.0");
     expect(
         calculateNextVersion(
             createOption(null),
             createConfig(undefined, undefined),
             createRelease("v2.1.1"),
-            createChanges(["patch: fix", ["minor"], "major: fix"])
-        )
+            createChanges(["patch: fix", ["minor"], "major: fix"]),
+        ),
     ).toBe("3.0.0");
 });
 
@@ -262,16 +263,16 @@ test("calculateNextVersionOverrideDefaultBump", () => {
             createOption(null),
             createConfig(undefined, undefined, "patch"),
             createRelease("v2.1.1"),
-            createChanges([])
-        )
+            createChanges([]),
+        ),
     ).toBe("2.1.2");
     expect(
         calculateNextVersion(
             createOption(null),
             createConfig(undefined, undefined, "major"),
             createRelease("v2.1.1"),
-            createChanges(["patch: fix"])
-        )
+            createChanges(["patch: fix"]),
+        ),
     ).toBe("2.1.2");
 
     /**
@@ -282,24 +283,24 @@ test("calculateNextVersionOverrideDefaultBump", () => {
             createOption(null),
             createConfig(undefined, undefined, "minor"),
             createRelease("v2.1.1"),
-            createChanges([])
-        )
+            createChanges([]),
+        ),
     ).toBe("2.2.0");
     expect(
         calculateNextVersion(
             createOption(null),
             createConfig(undefined, undefined, "major"),
             createRelease("v2.1.1"),
-            createChanges(["patch: fix", ["minor"]])
-        )
+            createChanges(["patch: fix", ["minor"]]),
+        ),
     ).toBe("2.2.0");
     expect(
         calculateNextVersion(
             createOption(null),
             createConfig(undefined, undefined, "patch"),
             createRelease("v2.1.1"),
-            createChanges(["patch: fix", ["minor"]])
-        )
+            createChanges(["patch: fix", ["minor"]]),
+        ),
     ).toBe("2.2.0");
 
     /**
@@ -310,15 +311,15 @@ test("calculateNextVersionOverrideDefaultBump", () => {
             createOption(null),
             createConfig(undefined, undefined, "major"),
             createRelease("v2.1.1"),
-            createChanges([])
-        )
+            createChanges([]),
+        ),
     ).toBe("3.0.0");
     expect(
         calculateNextVersion(
             createOption(null),
             createConfig(undefined, undefined, "patch"),
             createRelease("v2.1.1"),
-            createChanges(["patch: fix", ["minor"], "major: fix"])
-        )
+            createChanges(["patch: fix", ["minor"], "major: fix"]),
+        ),
     ).toBe("3.0.0");
 });

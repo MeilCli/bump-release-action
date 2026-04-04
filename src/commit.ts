@@ -1,6 +1,6 @@
 import * as exec from "@actions/exec";
 import * as core from "@actions/core";
-import { Config } from "./config";
+import { Config } from "./config.js";
 
 export interface Commit {
     sha: string;

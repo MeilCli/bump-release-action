@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as yaml from "js-yaml";
-import { Version, versionList } from "./version";
-import { ReleaseSortBy, ReleaseSortDirection, releaseSortByList, releaseSortDirectionList } from "./release";
+import { Version, versionList } from "./version.js";
+import { ReleaseSortBy, ReleaseSortDirection, releaseSortByList, releaseSortDirectionList } from "./release.js";
 
 export const defaultBodyTitle = "What's Changed";
 export const defaultBodyWhenEmptyChanges = "This release has no changes";

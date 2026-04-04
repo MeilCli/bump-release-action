@@ -1,10 +1,10 @@
 import * as semver from "semver";
-import { Option } from "./option";
-import { Config } from "./config";
-import { Release } from "./release";
-import { Changes } from "./calculate";
-import { PullRequest } from "./pull_request";
-import { Commit } from "./commit";
+import { Option } from "./option.js";
+import { Config } from "./config.js";
+import { Release } from "./release.js";
+import { Changes } from "./calculate.js";
+import { PullRequest } from "./pull_request.js";
+import { Commit } from "./commit.js";
 
 export const versionList = ["major", "minor", "patch"] as const;
 
@@ -86,7 +86,6 @@ export function calculateNextVersion(
             for (const prefix of config.bump.patch.commits) {
                 if (commit.message.startsWith(prefix)) {
                     bump = "patch";
-                    found = true;
                     break;
                 }
             }

@@ -1,8 +1,8 @@
 import * as fs from "fs";
 import * as semver from "semver";
 import * as core from "@actions/core";
-import { Option } from "./option";
-import { Config } from "./config";
+import { Option } from "./option.js";
+import { Config } from "./config.js";
 
 export function replaceVersions(option: Option, config: Config, version: string): boolean {
     let changed = false;

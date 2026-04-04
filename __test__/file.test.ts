@@ -1,4 +1,5 @@
 import { replaceVersion, splitLines } from "../src/file";
+import { test, expect } from "@jest/globals";
 
 test("testSplitLines", () => {
     expect(splitLines("abc")).toEqual(["abc"]);
@@ -30,8 +31,8 @@ test("testReplaceVersion1", () => {
     expect(replaceVersion(test1, 3, 14, "1.3.0")).toBe(test1);
 
     // nomatched
-    expect(() => replaceVersion(test1, 1, undefined, "2.0.0")).toThrowError(/.+/);
-    expect(() => replaceVersion(test1, 4, undefined, "2.0.0")).toThrowError(/.+/);
+    expect(() => replaceVersion(test1, 1, undefined, "2.0.0")).toThrow(/.+/);
+    expect(() => replaceVersion(test1, 4, undefined, "2.0.0")).toThrow(/.+/);
 });
 
 const test2 = "1.10.0";
@@ -40,5 +41,5 @@ const expect2 = "2.0.0";
 test("testReplaceVersion2", () => {
     expect(replaceVersion(test2, 1, undefined, "2.0.0")).toBe(expect2);
     expect(replaceVersion(test2, 1, undefined, "1.3.0")).toBe(test2);
-    expect(() => replaceVersion(test2, 1, 1, "2.0.0")).toThrowError(/.+/);
+    expect(() => replaceVersion(test2, 1, 1, "2.0.0")).toThrow(/.+/);
 });

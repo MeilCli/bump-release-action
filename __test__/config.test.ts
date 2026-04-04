@@ -1,4 +1,5 @@
 import * as Config from "../src/config";
+import { test, expect } from "@jest/globals";
 
 const testFull = `
 release:

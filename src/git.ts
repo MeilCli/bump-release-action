@@ -1,7 +1,7 @@
 import * as exec from "@actions/exec";
 import * as semver from "semver";
-import { Option } from "./option";
-import { Config } from "./config";
+import { Option } from "./option.js";
+import { Config } from "./config.js";
 
 export async function echoCurrentBranch(): Promise<string> {
     const execOption: exec.ExecOptions = { ignoreReturnCode: true };

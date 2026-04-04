@@ -1,14 +1,14 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
-import { getOption } from "./option";
-import { getConfigFromFile } from "./config";
-import { listCommits } from "./commit";
-import { getLatestRelease, createRelease } from "./release";
-import { listPullRequests } from "./pull_request";
-import { calculateChanges } from "./calculate";
-import { calculateNextVersion, calculateCurrentVersion } from "./version";
-import { echoCurrentBranch, pushVersionBranch, pushBaseBranch } from "./git";
-import { replaceVersions } from "./file";
+import { getOption } from "./option.js";
+import { getConfigFromFile } from "./config.js";
+import { listCommits } from "./commit.js";
+import { getLatestRelease, createRelease } from "./release.js";
+import { listPullRequests } from "./pull_request.js";
+import { calculateChanges } from "./calculate.js";
+import { calculateNextVersion, calculateCurrentVersion } from "./version.js";
+import { echoCurrentBranch, pushVersionBranch, pushBaseBranch } from "./git.js";
+import { replaceVersions } from "./file.js";
 
 async function run() {
     try {
