@@ -37,10 +37,7 @@ export interface ConfigRelease {
 }
 
 export type ConfigReleasePullRequestCommit =
-    | "exclude"
-    | "include"
-    | "include_merge_commit_only"
-    | "include_branch_commit_only";
+    "exclude" | "include" | "include_merge_commit_only" | "include_branch_commit_only";
 
 export interface ConfigReleaseCommitNoteReplacer {
     replacePrefix: string;
@@ -154,7 +151,7 @@ export function getConfigFromFile(filePath: string): Config {
 }
 
 export function getConfigFromYaml(text: string): Config {
-    const root = yaml.load(text) as YamlRoot;
+    const root = text && text.trim() !== "" ? (yaml.load(text) as YamlRoot) : ({} as YamlRoot);
     let sortBy: ReleaseSortBy = defaultSortBy;
     for (const releaseSortBy of releaseSortByList) {
         if (releaseSortBy == root?.release?.["sort-by"]) {
