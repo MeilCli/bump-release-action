@@ -64,8 +64,8 @@ importers:
         specifier: 5.5.6
         version: 5.5.6(eslint-config-prettier@10.1.8(eslint@10.8.1))(eslint@10.8.1)(prettier@3.9.6)
       globals:
-        specifier: 17.10.0
-        version: 17.10.0
+        specifier: 17.11.0
+        version: 17.11.0
       jest:
         specifier: 30.4.2
         version: 30.4.2(@types/node@25.9.5)
@@ -1174,8 +1174,8 @@ packages:
     resolution: {integrity: sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ==}
     engines: {node: '>=18'}
 
-  globals@17.10.0:
-    resolution: {integrity: sha512-V0kztuWST2k8A/VbxAY8+L+7+Rgo3fyA24IHRLrZp7HOzJjV0gHSaZUjK9lpP/IrBSNite2tZ1prhRkinRu1CA==}
+  globals@17.11.0:
+    resolution: {integrity: sha512-Z2I8hM+PbJDXQDq3Icgpzv+mPdwr68iZUU9d5WW4FuXfDUQfkZaZuvjMv42/5crNyw154+9+VWXbYrUgDXbxNw==}
     engines: {node: '>=18'}
 
   graceful-fs@4.2.11:
@@ -3128,7 +3128,7 @@ snapshots:
 
   globals@14.0.0: {}
 
-  globals@17.10.0: {}
+  globals@17.11.0: {}
 
   graceful-fs@4.2.11: {}
 
