@@ -73,8 +73,8 @@ importers:
         specifier: 30.4.2
         version: 30.4.2
       jest-mock:
-        specifier: 30.4.1
-        version: 30.4.1
+        specifier: 30.5.0
+        version: 30.5.0
       prettier:
         specifier: 3.9.6
         version: 3.9.6
@@ -3746,7 +3746,7 @@ snapshots:
       jest-regex-util: 30.4.0
       jest-util: 30.4.1
       jest-worker: 30.4.1
-      picomatch: 4.0.5
+      picomatch: 4.0.7
       walker: 1.0.8
     optionalDependencies:
       fsevents: 2.3.3
