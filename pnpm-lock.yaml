@@ -73,8 +73,8 @@ importers:
         specifier: 30.5.1
         version: 30.5.1
       jest-mock:
-        specifier: 30.5.0
-        version: 30.5.0
+        specifier: 30.5.1
+        version: 30.5.1
       prettier:
         specifier: 3.9.6
         version: 3.9.6
