@@ -39,7 +39,7 @@
         "jest": "30.5.2",
         "jest-circus": "30.5.2",
         "jest-mock": "30.5.2",
-        "prettier": "3.9.8",
+        "prettier": "3.9.9",
         "ts-jest": "29.4.12",
         "typescript": "6.0.3"
     },
